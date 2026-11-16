@@ -3,1080 +3,1759 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Epic (Faith No More) — Drum Video Trainer & Partitura Interativa</title>
+  <title>Epic (Faith No More) — Drum Trainer Studio</title>
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <style>
-    :root {
-      --background: #0b0f19;
-      --card: #111827;
-      --border: #1e293b;
-      --foreground: #f8fafc;
-      --muted-foreground: #94a3b8;
-      --primary: #38bdf8;
-      --primary-foreground: #090d16;
-      --link: #60a5fa;
-      --success: #4ade80;
-      --warning: #facc15;
-      --error: #f87171;
-    }
+    * { box-sizing: border-box; }
+    .step-cell { transition: transform 0.06s ease, background-color 0.06s ease; }
+    .step-active { transform: scale(1.12); box-shadow: 0 0 0 2px var(--primary); z-index: 10; }
+    .drum-pad { transition: transform 0.06s ease, filter 0.06s ease; cursor: pointer; user-select: none; }
+    .drum-pad.hit { transform: scale(1.09); filter: brightness(1.35); }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
   </style>
 </head>
-<body class="bg-[var(--background)] text-[var(--foreground)] antialiased p-4 m-0 select-none">
-  <div class="max-w-5xl mx-auto space-y-4 text-xs">
+<body class="bg-[var(--background)] text-[var(--foreground)] antialiased p-3 md:p-4 m-0 select-none">
+  <div class="max-w-7xl mx-auto space-y-3">
 
-    <!-- Header -->
-    <div class="bg-[var(--card)] border border-[var(--border)] rounded-lg p-3.5 flex flex-wrap items-center justify-between gap-3">
-      <div>
-        <div class="flex items-center gap-2">
-          <span class="px-2 py-0.5 rounded bg-[var(--primary)] text-[var(--primary-foreground)] font-bold">DRUM VIDEO TRAINER</span>
-          <h1 class="text-base font-bold text-[var(--foreground)]">Faith No More — "Epic" (Mike Bordin Groove)</h1>
+    <!-- HEADER & MODO DA MÚSICA -->
+    <header class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] flex items-center justify-center font-bold text-lg shadow">
+          🥁
         </div>
-        <p class="text-[var(--muted-foreground)] mt-1">
-          Estudo passo a passo por compasso • Partitura interativa com subdivisão exata (<span class="font-mono">1 e &amp; a</span>) • Vídeo 60fps + Gravador de Treino
-        </p>
-      </div>
-      <div class="flex items-center gap-2">
-        <button id="modeToggleBtn" class="px-3 py-1.5 rounded border border-[var(--border)] bg-[var(--background)] font-semibold text-[var(--link)] cursor-pointer hover:opacity-85">
-          Modo: ★ Versão Simplificada (Iniciante)
-        </button>
-        <button id="recordVideoBtn" class="px-3 py-1.5 rounded border border-[var(--border)] bg-[var(--background)] font-semibold text-[var(--error)] cursor-pointer hover:opacity-85" title="Gravar o player interativo com áudio em um arquivo de vídeo .webm">
-          🎥 Gravar Vídeo (.webm)
-        </button>
-      </div>
-    </div>
-
-    <!-- Main Video Player Stage -->
-    <div class="bg-[var(--card)] border border-[var(--border)] rounded-lg overflow-hidden">
-      <div class="px-3.5 py-2 border-b border-[var(--border)] flex flex-wrap items-center justify-between gap-2">
-        <div class="flex items-center gap-2">
-          <span id="videoSectionLabel" class="font-bold text-sm text-[var(--foreground)]">1. Intro — Impacto &amp; Groove</span>
-          <span class="text-[var(--muted-foreground)]">•</span>
-          <span id="videoBarLabel" class="font-mono px-2 py-0.5 rounded bg-[var(--background)] border border-[var(--border)] text-[var(--primary)]">Compasso 1 / 10</span>
-        </div>
-        <div class="flex items-center gap-3">
-          <div class="flex items-center gap-1.5">
-            <span class="text-[var(--muted-foreground)]">Subdivisão Exata:</span>
-            <span id="hudSubdivision" class="font-mono font-bold text-sm px-2 py-0.5 rounded bg-[var(--background)] border border-[var(--border)] text-[var(--warning)]">1</span>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-base md:text-lg font-bold tracking-tight">EPIC — Faith No More</h1>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-[var(--secondary)] text-[var(--secondary-foreground)] font-medium">Mike Bordin • 87 BPM • 4/4</span>
+            <span id="totalBarsBadge" class="text-xs px-2 py-0.5 rounded-full border border-[var(--border)] text-[var(--muted-foreground)] font-mono">106 Compassos (4:52)</span>
           </div>
-          <div class="flex items-center gap-1.5">
-            <span class="text-[var(--muted-foreground)]">Toque Agora:</span>
-            <span id="hudAction" class="font-bold text-sm px-2 py-0.5 rounded bg-[var(--background)] border border-[var(--border)] text-[var(--success)]">Crash (MD) + Bumbo (PD)</span>
+          <p class="text-xs text-[var(--muted-foreground)]">Treinador Interativo por Compasso com Partitura em Tempo Real, Vídeo &amp; Play-Along Completo</p>
+        </div>
+      </div>
+
+      <!-- Alternância Simplificada vs Original -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <div class="inline-flex rounded-lg border border-[var(--border)] p-0.5 bg-[var(--background)] text-xs">
+          <button id="btnModeSimplified" onclick="setDifficulty('simplified')" class="px-3 py-1.5 rounded-md font-semibold bg-[var(--primary)] text-[var(--primary-foreground)] transition">
+            ★ Versão Simplificada
+          </button>
+          <button id="btnModeOriginal" onclick="setDifficulty('original')" class="px-3 py-1.5 rounded-md font-semibold text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition">
+            🔥 Original (Mike Bordin)
+          </button>
+        </div>
+
+        <button id="btnRecordVideo" onclick="toggleVideoRecording()" class="text-xs px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)] font-medium flex items-center gap-1.5 transition" title="Gravar vídeo (.webm) do monitor visual + áudio do treino">
+          <span id="recordDot" class="w-2 h-2 rounded-full bg-[var(--error)]"></span>
+          <span id="recordLabel">Gravar Vídeo (.webm)</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- BARRA DE TRANSPORTE PRINCIPAL & AJUSTES DE TEMPO -->
+    <section class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3 space-y-3">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <!-- Botões de Play / Pause / Stop / Compassos -->
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <button onclick="jumpToMeasure(1)" class="px-2.5 py-2 rounded-lg border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)] text-xs font-mono" title="Voltar ao Compasso 1">⏮ C.1</button>
+          <button onclick="stepMeasure(-1)" class="px-2.5 py-2 rounded-lg border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)] text-xs font-mono" title="Compasso Anterior">◀ Comp</button>
+          <button id="btnPlayPause" onclick="togglePlay()" class="px-4 py-2 rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] font-bold text-xs md:text-sm flex items-center gap-2 shadow hover:opacity-95 transition">
+            <span id="playIcon">▶</span> <span id="playText">TOCAR (Espaço)</span>
+          </button>
+          <button onclick="stopPlayback()" class="px-2.5 py-2 rounded-lg border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)] text-xs font-mono" title="Parar e voltar ao início da seleção">⏹ Parar</button>
+          <button onclick="stepMeasure(1)" class="px-2.5 py-2 rounded-lg border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)] text-xs font-mono" title="Próximo Compasso">Comp ▶</button>
+        </div>
+
+        <!-- Modo de Reprodução (Música Completa / Seção / Compasso) -->
+        <div class="flex items-center gap-1.5 flex-wrap text-xs">
+          <span class="text-[var(--muted-foreground)] font-medium">Modo:</span>
+          <select id="playScopeSelect" onchange="setPlayScope(this.value)" class="px-2.5 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] font-medium">
+            <option value="full">🎵 Música Completa (Compassos 1–106 • Play-Along)</option>
+            <option value="section">🔁 Loop da Seção Atual</option>
+            <option value="bar">🎯 Loop de 1 Compasso (Foco Intenso)</option>
+          </select>
+
+          <label class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--background)] cursor-pointer" title="Contagem de 4 tempos antes de iniciar">
+            <input type="checkbox" id="chkCountIn" checked class="accent-[var(--primary)]" />
+            <span>Contagem (1-2-3-4)</span>
+          </label>
+
+          <label class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--background)] cursor-pointer" title="Aumenta +2 BPM a cada 4 compassos concluídos">
+            <input type="checkbox" id="chkAutoSpeed" class="accent-[var(--primary)]" />
+            <span>Auto +2 BPM</span>
+          </label>
+        </div>
+
+        <!-- Contador Digital Ao Vivo -->
+        <div class="flex items-center gap-2 bg-[var(--background)] border border-[var(--border)] rounded-lg px-3 py-1.5 font-mono">
+          <div class="text-center pr-2 border-r border-[var(--border)]">
+            <div class="text-xs text-[var(--muted-foreground)]">COMPASSO</div>
+            <div id="hudMeasure" class="text-sm md:text-base font-bold text-[var(--primary)]">001 / 106</div>
+          </div>
+          <div class="text-center pr-2 border-r border-[var(--border)]">
+            <div class="text-xs text-[var(--muted-foreground)]">TEMPO</div>
+            <div id="hudBeat" class="text-sm md:text-base font-bold">1 . e . &amp; . a</div>
+          </div>
+          <div class="text-center">
+            <div class="text-xs text-[var(--muted-foreground)]">CRONÔMETRO</div>
+            <div id="hudTime" class="text-sm md:text-base font-bold tabular-nums">0:00 / 4:52</div>
           </div>
         </div>
       </div>
 
-      <div class="relative bg-slate-950">
-        <canvas id="videoStageCanvas" width="960" height="430" class="w-full block cursor-pointer" title="Clique em qualquer tempo da partitura para posicionar a agulha e ouvir o tempo exato"></canvas>
-      </div>
+      <!-- Controle de BPM, Presets de Velocidade & Mixer -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 pt-2 border-t border-[var(--card-border)] items-center text-xs">
+        <!-- Slider BPM -->
+        <div class="lg:col-span-6 flex flex-wrap items-center gap-2">
+          <span class="text-[var(--muted-foreground)] font-medium">Andamento:</span>
+          <button onclick="adjustBpm(-5)" class="px-2 py-1 rounded border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)] font-mono">-5</button>
+          <button onclick="adjustBpm(-1)" class="px-2 py-1 rounded border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)] font-mono">-1</button>
+          <input id="bpmSlider" type="range" min="40" max="130" value="87" oninput="setBpm(this.value)" class="w-28 md:w-36 accent-[var(--primary)]" />
+          <button onclick="adjustBpm(1)" class="px-2 py-1 rounded border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)] font-mono">+1</button>
+          <button onclick="adjustBpm(5)" class="px-2 py-1 rounded border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)] font-mono">+5</button>
+          <span id="bpmReadout" class="font-mono font-bold text-sm px-2 py-0.5 rounded bg-[var(--secondary)] text-[var(--secondary-foreground)]">87 BPM (100%)</span>
 
-      <div class="p-3 border-t border-[var(--border)] flex flex-wrap items-center justify-between gap-3">
-        <div class="flex items-center gap-1.5">
-          <button id="prevBarBtn" class="px-2.5 py-1.5 rounded border border-[var(--border)] bg-[var(--background)] hover:opacity-80 cursor-pointer" title="Compasso Anterior">⏮</button>
-          <button id="playPauseBtn" class="px-4 py-1.5 rounded bg-[var(--primary)] text-[var(--primary-foreground)] font-bold hover:opacity-90 cursor-pointer">
-            ▶ Reproduzir Vídeo
-          </button>
-          <button id="stepForwardBtn" class="px-2.5 py-1.5 rounded border border-[var(--border)] bg-[var(--background)] hover:opacity-80 cursor-pointer" title="Avançar 1 Semicolcheia (Passo a Passo)">⏯ +1 Subdivisão</button>
-          <button id="nextBarBtn" class="px-2.5 py-1.5 rounded border border-[var(--border)] bg-[var(--background)] hover:opacity-80 cursor-pointer" title="Próximo Compasso">⏭</button>
+          <div class="flex items-center gap-1 ml-auto">
+            <button onclick="setBpm(52)" class="px-2 py-1 rounded border border-[var(--border)] hover:bg-[var(--secondary)] font-mono">60%</button>
+            <button onclick="setBpm(65)" class="px-2 py-1 rounded border border-[var(--border)] hover:bg-[var(--secondary)] font-mono">75%</button>
+            <button onclick="setBpm(74)" class="px-2 py-1 rounded border border-[var(--border)] hover:bg-[var(--secondary)] font-mono">85%</button>
+            <button onclick="setBpm(87)" class="px-2 py-1 rounded border border-[var(--primary)] text-[var(--primary)] font-bold font-mono">87 (Orig)</button>
+            <button onclick="tapTempo()" class="px-2 py-1 rounded border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)] font-medium">TAP</button>
+          </div>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2">
-          <span class="text-[var(--muted-foreground)]">Velocidade:</span>
-          <button data-bpm="43" class="spd-btn px-2 py-1 rounded border border-[var(--border)] bg-[var(--background)] cursor-pointer">50%</button>
-          <button data-bpm="56" class="spd-btn px-2 py-1 rounded border border-[var(--border)] bg-[var(--background)] cursor-pointer">65%</button>
-          <button data-bpm="69" class="spd-btn px-2 py-1 rounded border border-[var(--border)] bg-[var(--background)] cursor-pointer">80%</button>
-          <button data-bpm="86" class="spd-btn px-2 py-1 rounded bg-[var(--primary)] text-[var(--primary-foreground)] font-bold cursor-pointer">100% (86 BPM)</button>
-          <button data-bpm="99" class="spd-btn px-2 py-1 rounded border border-[var(--border)] bg-[var(--background)] cursor-pointer">115%</button>
-          <input id="bpmRange" type="range" min="40" max="125" value="86" class="w-24 accent-[var(--primary)] cursor-pointer" />
-          <span id="bpmValue" class="font-mono font-bold tabular-nums w-16">86 BPM</span>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <button id="loopModeBtn" class="px-2.5 py-1.5 rounded border border-[var(--border)] bg-[var(--background)] font-semibold cursor-pointer">
-            🔁 Loop: Seção Atual
-          </button>
-          <button id="autoAccelBtn" class="px-2.5 py-1.5 rounded border border-[var(--border)] bg-[var(--background)] text-[var(--muted-foreground)] cursor-pointer">
-            🚀 Treino Progressivo (+2 BPM): OFF
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Section & Measure Breakdown Grid + Mixer -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="md:col-span-2 bg-[var(--card)] border border-[var(--border)] rounded-lg p-3.5 space-y-2.5">
-        <div class="flex items-center justify-between">
-          <h2 class="font-bold text-sm">Estrutura da Música por Compasso (Clique para ir direto)</h2>
-          <span class="text-[var(--muted-foreground)]">10 Compassos Essenciais</span>
-        </div>
-        <div id="measureCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
-      </div>
-
-      <div class="bg-[var(--card)] border border-[var(--border)] rounded-lg p-3.5 space-y-3">
-        <h2 class="font-bold text-sm">Mixer de Estudo &amp; Prática no Teclado</h2>
-        <div class="space-y-1.5">
-          <label class="flex items-center justify-between p-1.5 rounded bg-[var(--background)] border border-[var(--border)] cursor-pointer">
-            <span>⏱ Metrônomo (Com subdivisão)</span>
-            <input type="checkbox" id="chkMetro" checked class="accent-[var(--primary)]" />
+        <!-- Mixer Rápido -->
+        <div class="lg:col-span-6 flex flex-wrap items-center justify-end gap-3">
+          <label class="flex items-center gap-1.5">
+            <input type="checkbox" id="chkDrumsAudio" checked class="accent-[var(--primary)]" />
+            <span>🥁 Bateria Guia</span>
+            <input id="volDrums" type="range" min="0" max="100" value="85" class="w-16 accent-[var(--primary)]" />
           </label>
-          <label class="flex items-center justify-between p-1.5 rounded bg-[var(--background)] border border-[var(--border)] cursor-pointer">
-            <span>🎸 Baixo &amp; Synth Riff ("Epic")</span>
-            <input type="checkbox" id="chkBass" checked class="accent-[var(--primary)]" />
+          <label class="flex items-center gap-1.5">
+            <input type="checkbox" id="chkMetronome" checked class="accent-[var(--primary)]" />
+            <span>⏱️ Click</span>
+            <input id="volClick" type="range" min="0" max="100" value="55" class="w-14 accent-[var(--primary)]" />
           </label>
-          <label class="flex items-center justify-between p-1.5 rounded bg-[var(--background)] border border-[var(--border)] cursor-pointer">
-            <span>🥁 Guia de Bateria (Desmarque p/ Karaokê)</span>
-            <input type="checkbox" id="chkDrums" checked class="accent-[var(--primary)]" />
+          <label class="flex items-center gap-1.5" title="Riff de Baixo/Teclado sintetizado de Epic para acompanhar os compassos">
+            <input type="checkbox" id="chkBackingSynth" checked class="accent-[var(--primary)]" />
+            <span>🎸 Riff Guia (Baixo/Piano)</span>
+            <input id="volSynth" type="range" min="0" max="100" value="45" class="w-14 accent-[var(--primary)]" />
           </label>
         </div>
+      </div>
+    </section>
 
-        <div class="border-t border-[var(--border)] pt-2.5 space-y-2">
+    <!-- MAPA COMPLETO DE COMPASSOS E SEÇÕES (1 A 106) -->
+    <section class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3 space-y-2">
+      <div class="flex items-center justify-between gap-2 flex-wrap text-xs">
+        <div class="font-semibold flex items-center gap-2">
+          <span>🗺️ Mapa Estrutural por Compasso (Clique em uma seção ou compasso para ir direto):</span>
+        </div>
+        <div id="currentSectionDesc" class="text-[var(--muted-foreground)] font-medium"></div>
+      </div>
+
+      <!-- Botões das 11 Seções da Música -->
+      <div id="sectionButtonsContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-1.5 text-xs"></div>
+
+      <!-- Linha do Tempo dos 106 Compassos -->
+      <div class="pt-1">
+        <div class="flex items-center justify-between text-xs text-[var(--muted-foreground)] mb-1">
+          <span>Linha do Tempo Completa (106 Compassos):</span>
+          <span id="barHoverInfo" class="font-mono">Passe o mouse ou clique em qualquer compasso</span>
+        </div>
+        <div id="barsTimeline" class="grid grid-cols-27 sm:grid-cols-53 gap-0.5"></div>
+      </div>
+    </section>
+
+    <!-- ÁREA CENTRAL: MONITOR DE VÍDEO INTERATIVO + PARTITURA EM TEMPO REAL -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+
+      <!-- COLUNA ESQUERDA (8 cols): MONITOR DE VÍDEO DA PARTITURA + GRADE EXATA DE TEMPO -->
+      <div class="lg:col-span-8 space-y-3">
+        <!-- Canvas de Vídeo / Partitura Interativa -->
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3 space-y-2">
+          <div class="flex items-center justify-between flex-wrap gap-2 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-sm">🎼 Monitor de Vídeo &amp; Partitura Interativa</span>
+              <span id="activePatternTitle" class="px-2 py-0.5 rounded bg-[var(--secondary)] text-[var(--secondary-foreground)] font-medium"></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[var(--muted-foreground)]">Dica de Manulação:</span>
+              <span id="stickingTip" class="font-mono font-semibold text-[var(--primary)]">Chimbal: Mão Direita (D) | Caixa: Mão Esquerda (E)</span>
+              <button onclick="toggleFullscreenCanvas()" class="px-2 py-1 rounded border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)]" title="Tela Cheia">⛶ Tela Cheia</button>
+            </div>
+          </div>
+
+          <!-- O Canvas é tanto o monitor interativo quanto a fonte do stream de vídeo (.webm) -->
+          <div id="videoStageContainer" class="relative w-full rounded-lg overflow-hidden border border-[var(--border)] bg-[var(--background)]">
+            <canvas id="scoreVideoCanvas" width="920" height="320" class="w-full h-auto block"></canvas>
+          </div>
+
+          <!-- Explicação Didática do Compasso Atual -->
+          <div id="measureCoachBox" class="p-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)] text-xs flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span class="font-bold text-[var(--primary)]">💡 Como tocar este compasso: </span>
+              <span id="coachText">Mantenha o chimbal constante em colcheias (1 &amp; 2 &amp; 3 &amp; 4 &amp;), caixa firme no 2 e 4, e bumbo no 1 e 3 &amp;.</span>
+            </div>
+            <div id="exactBeatCallout" class="font-mono font-bold px-2.5 py-1 rounded bg-[var(--secondary)] text-[var(--secondary-foreground)]">
+              PRÓXIMO TOQUE: Tempo 1 (Chimbal + Bumbo)
+            </div>
+          </div>
+        </div>
+
+        <!-- GRADE INTERATIVA DE 16 SUBDIVISÕES (1 e & a 2 e & a 3 e & a 4 e & a) -->
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3 space-y-2">
+          <div class="flex items-center justify-between flex-wrap gap-2 text-xs">
+            <div class="font-bold">
+              🎯 Grade Exata do Tempo (Subdivisão Semicolcheias: <span class="font-mono text-[var(--primary)]">1 e &amp; a | 2 e &amp; a | 3 e &amp; a | 4 e &amp; a</span>)
+            </div>
+            <div class="text-[var(--muted-foreground)]">
+              Clique em qualquer célula para ativar/desativar notas e personalizar seu treino
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <div id="stepSequencerGrid" class="min-w-[640px] space-y-1"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COLUNA DIREITA (4 cols): PLAYER SINCRONIZADO COM A MÚSICA ORIGINAL + KIT DE BATERIA VISUAL -->
+      <div class="lg:col-span-4 space-y-3">
+
+        <!-- SINCRONIZADOR COM A VERSÃO ORIGINAL (VÍDEO / ÁUDIO / YOUTUBE) -->
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3 space-y-2.5">
           <div class="flex items-center justify-between">
-            <span class="font-semibold">Treinar Junto (Teclado / Clique):</span>
-            <span id="hitFeedback" class="font-mono font-bold text-[var(--primary)]">Toque nas teclas!</span>
+            <h2 class="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+              <span>🎬</span> Vídeo / Áudio Original (Play-Along)
+            </h2>
+            <label class="text-xs flex items-center gap-1 cursor-pointer">
+              <input type="checkbox" id="chkSyncMedia" checked class="accent-[var(--primary)]" />
+              <span class="font-medium">Sincronizar Play/Tempo</span>
+            </label>
           </div>
-          <div class="grid grid-cols-3 gap-1.5">
-            <button data-pad="crash" class="pad-trigger p-2 rounded border border-[var(--border)] bg-[var(--background)] hover:border-amber-400 text-center cursor-pointer">
-              <div class="font-bold text-amber-400">Crash</div>
-              <div class="text-[var(--muted-foreground)] font-mono">[Tecla C]</div>
+
+          <!-- Abas de Fonte de Mídia -->
+          <div class="grid grid-cols-2 gap-1 p-0.5 rounded-lg bg-[var(--background)] border border-[var(--border)] text-xs">
+            <button id="tabMediaLocal" onclick="switchMediaTab('local')" class="py-1 px-2 rounded font-semibold bg-[var(--primary)] text-[var(--primary-foreground)]">
+              📁 Arquivo MP4/MP3
             </button>
-            <button data-pad="hh" class="pad-trigger p-2 rounded border border-[var(--border)] bg-[var(--background)] hover:border-yellow-300 text-center cursor-pointer">
-              <div class="font-bold text-yellow-300">Chimbal</div>
-              <div class="text-[var(--muted-foreground)] font-mono">[Tecla H]</div>
-            </button>
-            <button data-pad="snare" class="pad-trigger p-2 rounded border border-[var(--border)] bg-[var(--background)] hover:border-rose-500 text-center cursor-pointer">
-              <div class="font-bold text-rose-400">Caixa</div>
-              <div class="text-[var(--muted-foreground)] font-mono">[Tecla S]</div>
-            </button>
-            <button data-pad="tom" class="pad-trigger p-2 rounded border border-[var(--border)] bg-[var(--background)] hover:border-purple-400 text-center cursor-pointer">
-              <div class="font-bold text-purple-400">Tons</div>
-              <div class="text-[var(--muted-foreground)] font-mono">[Tecla T]</div>
-            </button>
-            <button data-pad="kick" class="pad-trigger col-span-2 p-2 rounded border border-[var(--border)] bg-[var(--background)] hover:border-sky-400 text-center cursor-pointer">
-              <div class="font-bold text-sky-400">Bumbo (Pé Direito)</div>
-              <div class="text-[var(--muted-foreground)] font-mono">[Barra de Espaço]</div>
+            <button id="tabMediaYoutube" onclick="switchMediaTab('youtube')" class="py-1 px-2 rounded font-semibold text-[var(--muted-foreground)]">
+              ▶️ YouTube Oficial
             </button>
           </div>
-          <p id="measureExplain" class="text-[var(--muted-foreground)] leading-relaxed pt-1">
-            Selecione um compasso ou aperte Reproduzir para ver a explicação detalhada de coordenação motora.
-          </p>
+
+          <!-- Painel Arquivo Local (Vídeo/Áudio) -->
+          <div id="panelMediaLocal" class="space-y-2 text-xs">
+            <p class="text-[var(--muted-foreground)] leading-relaxed">
+              Carregue o vídeo (<code>.mp4</code>/<code>.webm</code>) ou áudio (<code>.mp3</code>/<code>.wav</code>) original de <strong>Epic - Faith No More</strong>. A velocidade do vídeo se ajusta automaticamente ao BPM escolhido!
+            </p>
+            <input type="file" id="mediaFileInput" accept="video/*,audio/*" onchange="loadLocalMediaFile(event)" class="block w-full text-xs file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-[var(--primary)] file:text-[var(--primary-foreground)] cursor-pointer" />
+            <video id="localVideoPlayer" controls class="w-full rounded-lg border border-[var(--border)] bg-black max-h-40"></video>
+          </div>
+
+          <!-- Painel YouTube -->
+          <div id="panelMediaYoutube" class="hidden space-y-2 text-xs">
+            <div class="flex gap-1">
+              <input id="ytVideoIdInput" type="text" value="ZG_k5CSYKhg" placeholder="ID ou URL do YouTube (ex: ZG_k5CSYKhg)" class="flex-1 px-2 py-1 rounded border border-[var(--border)] bg-[var(--background)] font-mono text-xs" />
+              <button onclick="loadYoutubeVideo()" class="px-2.5 py-1 rounded bg-[var(--primary)] text-[var(--primary-foreground)] font-semibold">Carregar</button>
+            </div>
+            <div id="ytEmbedWrapper" class="w-full aspect-video rounded-lg overflow-hidden border border-[var(--border)] bg-black flex items-center justify-center text-center p-2">
+              <div class="space-y-1.5">
+                <p class="text-xs text-[var(--muted-foreground)]">Vídeo Oficial: <strong>Faith No More - Epic</strong> (87 BPM)</p>
+                <button onclick="loadYoutubeVideo()" class="px-3 py-1.5 rounded-lg bg-[var(--primary)] text-[var(--primary-foreground)] font-semibold text-xs">
+                  ▶ Abrir Player YouTube Sincronizado
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ajuste Fino de Offset de Sincronia -->
+          <div class="pt-1 border-t border-[var(--card-border)] flex items-center justify-between gap-2 text-xs">
+            <span class="text-[var(--muted-foreground)]" title="Ajusta o início do Compasso 1 em relação à introdução do vídeo/áudio original">Offset Compasso 1:</span>
+            <div class="flex items-center gap-1 font-mono">
+              <button onclick="adjustMediaOffset(-0.25)" class="px-1.5 py-0.5 rounded border border-[var(--border)]">-0.25s</button>
+              <span id="mediaOffsetLabel" class="px-1.5 font-bold">0.00s</span>
+              <button onclick="adjustMediaOffset(0.25)" class="px-1.5 py-0.5 rounded border border-[var(--border)]">+0.25s</button>
+            </div>
+          </div>
         </div>
+
+        <!-- KIT DE BATERIA INTERATIVO (TOP-DOWN) -->
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3 space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <h2 class="font-bold uppercase tracking-wider">🥁 Kit Visual Interativo (Clique ou Teclado)</h2>
+            <span class="text-[var(--muted-foreground)] font-mono">Teclas: C, H, R, S, T, G, B</span>
+          </div>
+
+          <!-- Kit SVG / Botões Táteis -->
+          <div class="grid grid-cols-3 gap-2 text-xs font-semibold">
+            <button id="pad-crash" onmousedown="triggerManualDrum('crash')" class="drum-pad p-2.5 rounded-xl border-2 border-amber-500/60 bg-amber-500/10 flex flex-col items-center justify-center gap-0.5">
+              <span class="text-sm">💥 Crash</span>
+              <span class="text-xs font-mono text-[var(--muted-foreground)]">Tecla [C]</span>
+            </button>
+            <button id="pad-tom1" onmousedown="triggerManualDrum('tom1')" class="drum-pad p-2.5 rounded-xl border-2 border-sky-500/60 bg-sky-500/10 flex flex-col items-center justify-center gap-0.5">
+              <span class="text-sm">🔵 Tom 1</span>
+              <span class="text-xs font-mono text-[var(--muted-foreground)]">Tecla [T]</span>
+            </button>
+            <button id="pad-ride" onmousedown="triggerManualDrum('ride')" class="drum-pad p-2.5 rounded-xl border-2 border-yellow-500/60 bg-yellow-500/10 flex flex-col items-center justify-center gap-0.5">
+              <span class="text-sm">🔔 Ride / Open</span>
+              <span class="text-xs font-mono text-[var(--muted-foreground)]">Tecla [R]</span>
+            </button>
+            <button id="pad-hihat" onmousedown="triggerManualDrum('hihat')" class="drum-pad p-2.5 rounded-xl border-2 border-emerald-500/60 bg-emerald-500/10 flex flex-col items-center justify-center gap-0.5">
+              <span class="text-sm">🥢 Chimbal (HH)</span>
+              <span class="text-xs font-mono text-[var(--muted-foreground)]">Tecla [H]</span>
+            </button>
+            <button id="pad-snare" onmousedown="triggerManualDrum('snare')" class="drum-pad p-2.5 rounded-xl border-2 border-rose-500/60 bg-rose-500/10 flex flex-col items-center justify-center gap-0.5">
+              <span class="text-sm">🎯 Caixa (Snare)</span>
+              <span class="text-xs font-mono text-[var(--muted-foreground)]">Tecla [S]</span>
+            </button>
+            <button id="pad-tom2" onmousedown="triggerManualDrum('tom2')" class="drum-pad p-2.5 rounded-xl border-2 border-indigo-500/60 bg-indigo-500/10 flex flex-col items-center justify-center gap-0.5">
+              <span class="text-sm">🟣 Surdo (Floor)</span>
+              <span class="text-xs font-mono text-[var(--muted-foreground)]">Tecla [G]</span>
+            </button>
+            <button id="pad-kick" onmousedown="triggerManualDrum('kick')" class="drum-pad col-span-3 p-2.5 rounded-xl border-2 border-orange-500/70 bg-orange-500/15 flex items-center justify-center gap-3">
+              <span class="text-sm font-bold">🦶 Bumbo (Kick Drum)</span>
+              <span class="text-xs font-mono text-[var(--muted-foreground)]">Tecla [B] ou [Seta p/ Baixo]</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- LEGENDA DA PARTITURA -->
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3 space-y-1.5 text-xs">
+          <div class="font-bold">📖 Guia Rápido de Leitura (Compasso 4/4):</div>
+          <div class="grid grid-cols-2 gap-1 text-[var(--muted-foreground)]">
+            <div>• <strong class="text-[var(--foreground)]">Tempos 1, 2, 3, 4:</strong> Cabeças do tempo</div>
+            <div>• <strong class="text-[var(--foreground)]">Subdivisão "&amp;":</strong> Contratempo (Colcheia)</div>
+            <div>• <strong class="text-[var(--foreground)]">Subdivisões "e" / "a":</strong> Semicolcheias (1/16)</div>
+            <div>• <strong class="text-[var(--foreground)]">( ● ) na Caixa:</strong> Ghost Note (toque suave)</div>
+          </div>
+        </div>
+
       </div>
     </div>
-
   </div>
 
   <script>
-    const SUB_NAMES = ['1', 'e', '&', 'a', '2', 'e', '&', 'a', '3', 'e', '&', 'a', '4', 'e', '&', 'a'];
+    // =========================================================================
+    // 1. DEFINIÇÃO COMPLETA DA MÚSICA "EPIC" — FAITH NO MORE (106 COMPASSOS, 87 BPM)
+    // =========================================================================
+    // Cada compasso possui 16 passos (semicolcheias):
+    // Índices: 0='1', 1='1e', 2='1&', 3='1a', 4='2', 5='2e', 6='2&', 7='2a',
+    //          8='3', 9='3e', 10='3&', 11='3a', 12='4', 13='4e', 14='4&', 15='4a'
+    // Valores por instrumento: 0 = silêncio, 1 = toque normal, 2 = acento/aberto, 3 = ghost note (suave)
 
-    const MEASURES = [
-      {
-        id: 1,
-        section: "1. Intro — Impacto & Groove",
-        title: "Compasso 1: Ataque Inicial",
-        desc: "Ataque o Crash + Bumbo no tempo 1. Mantenha o Chimbal nas colcheias (& 2 & 3 & 4 &) e Caixa firme no 2 e 4.",
-        simple: {
-          crash: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          hh:    [0,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
-          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
-          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          kick:  [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],
-          bass:  [82.4,0,0,0, 0,0,82.4,0, 98.0,0,0,0, 110.0,0,0,0]
-        },
-        orig: {
-          crash: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          hh:    [0,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
-          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
-          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          kick:  [1,0,0,0, 0,1,1,0, 0,0,1,0, 0,0,1,0],
-          bass:  [82.4,0,0,0, 0,82.4,82.4,0, 0,0,98.0,0, 110.0,0,98.0,0]
-        }
-      },
-      {
-        id: 2,
-        section: "1. Intro — Impacto & Groove",
-        title: "Compasso 2: Resposta do Riff",
-        desc: "Bumbo no 1, no '&' do 2, no 3 e no '&' do 4 preparando a repetição do riff pesado de guitarra.",
-        simple: {
-          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          hh:    [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
-          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
-          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          kick:  [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,1,0],
-          bass:  [82.4,0,0,0, 0,0,82.4,0, 123.5,0,0,0, 110.0,0,98.0,0]
-        },
-        orig: {
-          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          hh:    [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
-          snare: [0,0,0,0, 1,0,0,1, 0,0,0,0, 1,0,0,0],
-          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          kick:  [1,0,0,0, 0,1,1,0, 1,0,1,0, 0,0,1,0],
-          bass:  [82.4,0,0,0, 0,82.4,82.4,0, 123.5,0,110.0,0, 98.0,0,82.4,0]
-        }
-      },
-      {
-        id: 3,
-        section: "2. Verso — Levada Rap / Funk",
-        title: "Compasso 3: Groove Seco (Verso A)",
-        desc: "Chimbal fechado bem preciso. O bumbo no '&' do 2 seguido pelo 3 dá o balanço clássico do Mike Bordin.",
-        simple: {
-          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          hh:    [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
-          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
-          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          kick:  [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],
-          bass:  [82.4,0,82.4,0, 0,0,82.4,0, 82.4,0,0,0, 98.0,0,0,0]
-        },
-        orig: {
-          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          hh:    [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
-          snare: [0,0,0,0, 1,0,0,0, 0,1,0,0, 1,0,0,0],
-          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          kick:  [1,0,1,0, 0,0,1,1, 1,0,0,0, 0,0,1,0],
-          bass:  [82.4,0,82.4,0, 0,0,82.4,82.4, 82.4,0,0,0, 98.0,0,82.4,0]
-        }
-      },
-      {
-        id: 4,
-        section: "2. Verso — Levada Rap / Funk",
-        title: "Compasso 4: Caixa Dupla no Fim",
-        desc: "No tempo 4, toque Caixa no '4' e também no '&' do 4 para criar o impulso para o próximo compasso.",
-        simple: {
-          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          hh:    [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
-          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,1,0],
-          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          kick:  [1,0,0,0, 0,0,1,0, 1,0,1,0, 0,0,0,0],
-          bass:  [82.4,0,0,0, 0,0,98.0,0, 110.0,0,98.0,0, 82.4,0,0,0]
-        },
-        orig: {
-          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          hh:    [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,0,0],
-          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,1,1],
-          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          kick:  [1,0,0,1, 0,0,1,0, 1,0,1,0, 0,0,0,0],
-          bass:  [82.4,0,0,82.4, 0,0,98.0,0, 110.0,0,98.0,0, 82.4,0,0,0]
-        }
-      },
-      {
-        id: 5,
-        section: "3. Pré-Refrão — \"What is it? It's it!\"",
-        title: "Compasso 5: Acentos no Crash (1 e 3)",
-        desc: "Acentue os tempos 1 e 3 com Crash + Bumbo e responda com a Caixa nos tempos 2 e 4.",
-        simple: {
-          crash: [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],
-          hh:    [0,0,1,0, 1,0,1,0, 0,0,1,0, 1,0,1,0],
-          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
-          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          kick:  [1,0,1,0, 0,0,0,0, 1,0,1,0, 0,0,0,0],
-          bass:  [98.0,0,98.0,0, 0,0,0,0, 110.0,0,110.0,0, 0,0,0,0]
-        },
-        orig: {
-          crash: [1,0,1,0, 0,0,0,0, 1,0,1,0, 0,0,0,0],
-          hh:    [0,0,0,0, 1,0,1,0, 0,0,0,0, 1,0,1,0],
-          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
-          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          kick:  [1,0,1,0, 0,0,1,0, 1,0,1,0, 0,0,1,0],
-          bass:  [98.0,0,98.0,0, 0,0,98.0,0, 110.0,0,110.0,0, 0,0,110.0,0]
-        }
-      },
-      {
-        id: 6,
-        section: "3. Pré-Refrão — \"What is it? It's it!\"",
-        title: "Compasso 6: Virada Clássica p/ Refrão",
-        desc: "Virada (Fill): Tempo 3 na Caixa (3 &) e Tempo 4 descendo nos Tons (4 &) para abrir o Refrão!",
-        simple: {
-          crash: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          hh:    [0,0,1,0, 1,0,0,0, 0,0,0,0, 0,0,0,0],
-          snare: [0,0,0,0, 1,0,0,0, 1,0,1,0, 0,0,0,0],
-          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 1,0,1,0],
-          kick:  [1,0,0,0, 0,0,0,0, 1,0,0,0, 1,0,0,0],
-          bass:  [123.5,0,0,0, 123.5,0,0,0, 110.0,0,0,0, 98.0,0,0,0]
-        },
-        orig: {
-          crash: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          hh:    [0,0,1,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          snare: [0,0,0,0, 1,0,1,1, 1,1,0,0, 0,0,0,0],
-          tom:   [0,0,0,0, 0,0,0,0, 0,0,1,1, 1,1,1,1],
-          kick:  [1,0,0,0, 0,0,0,0, 1,0,0,0, 1,0,0,0],
-          bass:  [123.5,0,0,0, 123.5,0,0,0, 110.0,0,0,0, 98.0,0,0,0]
-        }
-      },
-      {
-        id: 7,
-        section: "4. Refrão — \"You Want It All!\"",
-        title: "Compasso 7: Refrão Explosivo A",
-        desc: "Bumbo duplo em colcheias nos tempos '1 &' e '3 &', com Caixa pesada no 2 e 4.",
-        simple: {
-          crash: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          hh:    [0,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
-          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
-          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          kick:  [1,0,1,0, 0,0,0,0, 1,0,1,0, 0,0,0,0],
-          bass:  [130.8,0,130.8,0, 146.8,0,0,0, 98.0,0,98.0,0, 82.4,0,0,0]
-        },
-        orig: {
-          crash: [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],
-          hh:    [0,0,1,0, 1,0,1,0, 0,0,1,0, 1,0,1,0],
-          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,1],
-          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          kick:  [1,0,1,0, 0,0,1,0, 1,0,1,0, 0,0,1,0],
-          bass:  [130.8,0,130.8,0, 146.8,0,146.8,0, 98.0,0,98.0,0, 82.4,0,82.4,0]
-        }
-      },
-      {
-        id: 8,
-        section: "4. Refrão — \"You Want It All!\"",
-        title: "Compasso 8: Refrão B + Virada nos Tons",
-        desc: "Mantém a levada até o tempo 3 e finaliza com Caixa no 4 e Tom no '&' do 4.",
-        simple: {
-          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          hh:    [1,0,1,0, 1,0,1,0, 1,0,1,0, 0,0,0,0],
-          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
-          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,1,0],
-          kick:  [1,0,1,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],
-          bass:  [130.8,0,130.8,0, 146.8,0,0,0, 110.0,0,0,0, 123.5,0,0,0]
-        },
-        orig: {
-          crash: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          hh:    [0,0,1,0, 1,0,1,0, 1,0,0,0, 0,0,0,0],
-          snare: [0,0,0,0, 1,0,0,0, 0,0,1,1, 0,0,0,0],
-          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 1,1,1,1],
-          kick:  [1,0,1,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],
-          bass:  [130.8,0,130.8,0, 146.8,0,0,0, 110.0,0,0,0, 123.5,0,0,0]
-        }
-      },
-      {
-        id: 9,
-        section: "5. Solo & Outro — Piano Melódico",
-        title: "Compasso 9: Condução sob o Piano",
-        desc: "Groove mais espaçado e melódico acompanhando o famoso solo de piano final.",
-        simple: {
-          crash: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          hh:    [0,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
-          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
-          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          kick:  [1,0,0,0, 0,0,0,0, 1,0,1,0, 0,0,0,0],
-          bass:  [110.0,0,0,0, 164.8,0,0,0, 146.8,0,130.8,0, 123.5,0,0,0]
-        },
-        orig: {
-          crash: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
-          hh:    [0,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
-          snare: [0,0,0,0, 1,0,0,1, 0,0,0,0, 1,0,0,0],
-          tom:   [0,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,1,0],
-          kick:  [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],
-          bass:  [110.0,0,0,0, 164.8,0,0,0, 146.8,0,130.8,0, 123.5,0,0,0]
-        }
-      },
-      {
-        id: 10,
-        section: "5. Solo & Outro — Piano Melódico",
-        title: "Compasso 10: Finalização nos Tons",
-        desc: "Fechamento com chamada de Caixa e Tons voltando ao tempo 1.",
-        simple: {
-          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 1,0,0,0],
-          hh:    [1,0,1,0, 1,0,1,0, 0,0,0,0, 0,0,0,0],
-          snare: [0,0,0,0, 1,0,0,0, 1,0,0,0, 0,0,0,0],
-          tom:   [0,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],
-          kick:  [1,0,0,0, 0,0,1,0, 0,0,0,0, 1,0,0,0],
-          bass:  [110.0,0,0,0, 98.0,0,0,0, 82.4,0,0,0, 82.4,0,0,0]
-        },
-        orig: {
-          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 1,0,0,0],
-          hh:    [1,0,1,0, 1,0,0,0, 0,0,0,0, 0,0,0,0],
-          snare: [0,0,0,0, 1,0,1,0, 1,1,0,0, 0,0,0,0],
-          tom:   [0,0,0,0, 0,0,0,0, 0,0,1,1, 0,0,0,0],
-          kick:  [1,0,0,0, 0,0,1,0, 0,0,0,0, 1,0,0,0],
-          bass:  [110.0,0,0,0, 98.0,0,0,0, 82.4,0,0,0, 82.4,0,0,0]
-        }
-      }
+    const SUBDIVISION_LABELS = ['1', 'e', '&', 'a', '2', 'e', '&', 'a', '3', 'e', '&', 'a', '4', 'e', '&', 'a'];
+
+    const INSTRUMENTS = [
+      { id: 'crash', name: 'Crash (Ataque)', short: 'CR', color: '#f59e0b', staffLine: 0.5, noteType: 'x' },
+      { id: 'ride',  name: 'Ride / HH Aberto', short: 'RD', color: '#eab308', staffLine: 1.0, noteType: 'x' },
+      { id: 'hihat', name: 'Chimbal (Hi-Hat)', short: 'HH', color: '#10b981', staffLine: 1.5, noteType: 'x' },
+      { id: 'tom1',  name: 'Tom 1 / 2',        short: 'T1', color: '#0ea5e9', staffLine: 2.2, noteType: 'o' },
+      { id: 'snare', name: 'Caixa (Snare)',    short: 'SN', color: '#f43f5e', staffLine: 3.0, noteType: 'o' },
+      { id: 'tom2',  name: 'Surdo (Floor)',    short: 'FT', color: '#6366f1', staffLine: 4.0, noteType: 'o' },
+      { id: 'kick',  name: 'Bumbo (Kick)',     short: 'BD', color: '#f97316', staffLine: 5.0, noteType: 'o' }
     ];
 
+    // Padrões rítmicos de bateria (Simplificados vs. Originais Mike Bordin)
+    const PATTERNS = {
+      // 1. Intro Synth (Compasso 1: marcação / espera)
+      intro_wait: {
+        title: 'Intro Sintetizador (Contagem)',
+        sticking: 'Prepare as baquetas — ataque no tempo 1',
+        coach: 'Compasso 1: Ataque inicial no Crash + Bumbo no tempo 1 e aguarde a entrada da virada no Compasso 2.',
+        bassNotes: [40, 0, 0, 0, 0, 0, 0, 0, 40, 0, 0, 0, 0, 0, 0, 0],
+        simplified: {
+          crash: [2,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          ride:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hihat: [0,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          snare: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [2,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]
+        },
+        original: {
+          crash: [2,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          ride:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hihat: [0,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          snare: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [2,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]
+        }
+      },
+
+      // 2. Virada de Entrada (Compasso 2)
+      intro_pickup_fill: {
+        title: 'Virada Explosiva de Entrada',
+        sticking: 'Tempos 3 e 4: D E D E nos Tambores',
+        coach: 'Toque a virada nos tempos 3 e 4 (Caixa -> Tom 1 -> Surdo) preparando o Riff Principal no tempo 1 seguinte!',
+        bassNotes: [40,0,0,0, 40,0,0,0, 43,0,45,0, 47,0,40,0],
+        simplified: {
+          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          ride:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hihat: [1,0,0,0, 1,0,0,0, 0,0,0,0, 0,0,0,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 1,0,0,0],
+          snare: [0,0,0,0, 2,0,0,0, 2,0,1,0, 0,0,0,0],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,2,0],
+          kick:  [1,0,0,0, 0,0,0,0, 1,0,0,0, 1,0,0,0]
+        },
+        original: {
+          crash: [0,0,0,0, 0,0,0,0, 2,0,0,0, 0,0,0,0],
+          ride:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hihat: [1,0,0,0, 1,0,0,0, 0,0,0,0, 0,0,0,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,1,1, 2,0,0,0],
+          snare: [0,0,0,0, 2,0,1,1, 2,0,0,0, 0,0,0,0],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,1,2,2],
+          kick:  [1,0,0,0, 0,0,0,0, 2,0,0,0, 1,0,0,0]
+        }
+      },
+
+      // 3. Riff Principal Pesado (Intro Riff)
+      main_riff_a: {
+        title: 'Riff Principal Pesado (Groove A)',
+        sticking: 'Condução: D em Colcheias | Caixa: E no 2 e 4',
+        coach: 'Groove pesado de abertura! Na versão simplificada: Bumbo no 1, 3 e 3&, Caixa forte no 2 e 4. Na original: síncopa no 2&.',
+        bassNotes: [40,0,40,0, 43,0,45,0, 47,0,47,0, 45,0,43,0],
+        simplified: {
+          crash: [2,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          ride:  [0,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+          hihat: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          snare: [0,0,0,0, 2,0,0,0, 0,0,0,0, 2,0,0,0],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [2,0,0,0, 0,0,0,0, 1,0,1,0, 0,0,0,0]
+        },
+        original: {
+          crash: [2,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          ride:  [0,0,2,0, 2,0,2,0, 2,0,2,0, 2,0,2,0],
+          hihat: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          snare: [0,0,0,0, 2,0,0,3, 0,3,0,0, 2,0,0,3],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [2,0,1,0, 0,0,1,0, 1,0,1,0, 0,0,1,0]
+        }
+      },
+
+      main_riff_b: {
+        title: 'Riff Principal Pesado (Groove B)',
+        sticking: 'Mantenha o pulso firme em 87 BPM',
+        coach: 'Continuação do Riff: mantenha a caixa cravada nos tempos 2 e 4 e o bumbo acompanhando o baixo no tempo 3 &.',
+        bassNotes: [40,0,40,0, 43,0,45,0, 48,0,47,0, 45,0,43,0],
+        simplified: {
+          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          ride:  [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+          hihat: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          snare: [0,0,0,0, 2,0,0,0, 0,0,0,0, 2,0,0,0],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [1,0,0,0, 0,0,0,0, 1,0,1,0, 0,0,0,0]
+        },
+        original: {
+          crash: [0,0,0,0, 0,0,0,0, 0,0,2,0, 0,0,0,0],
+          ride:  [2,0,2,0, 2,0,2,0, 2,0,0,0, 2,0,2,0],
+          hihat: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,1,0],
+          snare: [0,0,0,0, 2,0,0,3, 0,0,0,0, 2,0,0,0],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,1],
+          kick:  [1,0,1,0, 0,0,1,0, 1,0,2,0, 0,0,0,0]
+        }
+      },
+
+      // 4. Verso Funk/Rap ("Can you feel it, see it, hear it today?")
+      verse_groove: {
+        title: 'Verso Funk/Rap Groove (Pocket)',
+        sticking: 'Chimbal Fechado em Colcheias (1 & 2 & 3 & 4 &)',
+        coach: 'O coração da música! Simplificado: Chimbal em colcheias, Bumbo no 1 e 3&, Caixa no 2 e 4. Original: Ghost notes na caixa (2e, 2a, 4a) e bumbo no 2&.',
+        bassNotes: [40,0,0,40, 0,0,43,0, 40,0,40,0, 0,0,45,0],
+        simplified: {
+          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          ride:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hihat: [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          snare: [0,0,0,0, 2,0,0,0, 0,0,0,0, 2,0,0,0],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [1,0,0,0, 0,0,0,0, 1,0,1,0, 0,0,0,0]
+        },
+        original: {
+          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          ride:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hihat: [2,0,1,0, 1,0,1,0, 2,0,1,0, 1,0,1,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          snare: [0,0,0,0, 2,3,0,3, 0,3,0,0, 2,0,0,3],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [2,0,0,1, 0,0,1,0, 1,0,1,0, 0,0,1,0]
+        }
+      },
+
+      verse_turnaround: {
+        title: 'Verso Funk/Rap (Com Abertura de Chimbal no 4&)',
+        sticking: 'Abra o Chimbal (ou Ride) no "4 &" para respirar',
+        coach: 'Final de frase de 4 compassos do Verso: adicione um toque de Chimbal Aberto (ou Caixa extra) no tempo "4 &".',
+        bassNotes: [40,0,0,40, 0,0,43,0, 40,0,40,0, 47,0,45,0],
+        simplified: {
+          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          ride:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,2,0],
+          hihat: [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,0,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          snare: [0,0,0,0, 2,0,0,0, 0,0,0,0, 2,0,0,0],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [1,0,0,0, 0,0,1,0, 1,0,1,0, 0,0,0,0]
+        },
+        original: {
+          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          ride:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,2,0],
+          hihat: [2,0,1,0, 1,0,1,0, 2,0,1,0, 1,0,0,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          snare: [0,0,0,0, 2,3,0,3, 0,3,0,0, 2,0,0,2],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [2,0,0,1, 0,0,1,0, 1,0,1,0, 0,0,1,0]
+        }
+      },
+
+      // 5. Pré-Refrão ("It's it! What is it?")
+      prechorus_hit: {
+        title: 'Pré-Refrão — "It\'s It! What is it?"',
+        sticking: 'Acentos fortes no 1 e 2& acompanhando o vocal',
+        coach: 'Marque os acentos de "It\'s it!" junto com o bumbo e chimbal aberto/crash, mantendo a caixa firme no 2 e 4.',
+        bassNotes: [40,0,40,0, 0,0,43,0, 45,0,45,0, 47,0,45,0],
+        simplified: {
+          crash: [2,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          ride:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hihat: [0,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          snare: [0,0,0,0, 2,0,0,0, 0,0,0,0, 2,0,0,0],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [2,0,1,0, 0,0,1,0, 1,0,1,0, 0,0,0,0]
+        },
+        original: {
+          crash: [2,0,2,0, 0,0,2,0, 0,0,0,0, 0,0,0,0],
+          ride:  [0,0,0,0, 0,0,0,0, 1,0,1,0, 1,0,1,0],
+          hihat: [0,0,0,0, 1,0,0,0, 0,0,0,0, 0,0,0,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          snare: [0,0,0,0, 2,0,0,3, 0,3,0,0, 2,0,0,3],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [2,0,2,0, 0,0,2,0, 1,0,1,0, 0,0,1,0]
+        }
+      },
+
+      // 6. Virada de Transição (Final do Pré-Refrão / Refrão)
+      section_fill: {
+        title: 'Virada de Transição (Caixa + Tons)',
+        sticking: 'Tempo 3: Caixa (D-E) | Tempo 4: Tom 1 -> Surdo',
+        coach: 'Virada clássica de Mike Bordin no último compasso da seção! Ataque os tambores nos tempos 3 e 4 para explodir no tempo 1.',
+        bassNotes: [40,0,40,0, 43,0,45,0, 47,0,47,0, 45,0,40,0],
+        simplified: {
+          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          ride:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hihat: [1,0,1,0, 1,0,0,0, 0,0,0,0, 0,0,0,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 2,0,0,0],
+          snare: [0,0,0,0, 2,0,1,0, 2,0,2,0, 0,0,0,0],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,2,0],
+          kick:  [1,0,0,0, 0,0,0,0, 1,0,0,0, 1,0,0,0]
+        },
+        original: {
+          crash: [2,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          ride:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hihat: [0,0,1,0, 1,0,0,0, 0,0,0,0, 0,0,0,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,2,2, 0,0,0,0],
+          snare: [0,0,0,0, 2,0,2,2, 2,2,0,0, 0,0,0,0],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 2,2,2,2],
+          kick:  [2,0,1,0, 0,0,0,0, 1,0,0,0, 1,0,1,0]
+        }
+      },
+
+      // 7. Refrão ("You want it all, but you can't have it")
+      chorus_drive: {
+        title: 'Refrão — "You Want It All!" (Condução Aberta)',
+        sticking: 'Mão Direita no Ride/Crash em colcheias com energia máxima',
+        coach: 'Refrão explosivo! Conduza no Ride (ou Chimbal aberto), Crash no tempo 1, Caixa forte no 2 e 4 e Bumbo firme no 1, 3 e 3&.',
+        bassNotes: [40,0,40,0, 47,0,47,0, 48,0,48,0, 45,0,45,0],
+        simplified: {
+          crash: [2,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          ride:  [0,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+          hihat: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          snare: [0,0,0,0, 2,0,0,0, 0,0,0,0, 2,0,0,0],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [2,0,0,0, 0,0,0,0, 1,0,1,0, 0,0,0,0]
+        },
+        original: {
+          crash: [2,0,0,0, 0,0,0,0, 2,0,0,0, 0,0,0,0],
+          ride:  [0,0,2,0, 2,0,2,0, 0,0,2,0, 2,0,2,0],
+          hihat: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          snare: [0,0,0,0, 2,0,0,3, 0,0,0,0, 2,0,0,3],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [2,0,1,0, 0,0,1,0, 2,0,1,0, 0,0,1,0]
+        }
+      },
+
+      // 8. Solo de Guitarra (Jim Martin)
+      guitar_solo_groove: {
+        title: 'Solo de Guitarra — Groove Pesado nos Tons/Ride',
+        sticking: 'Condução pesada + Surdo/Bumbo sincronizados',
+        coach: 'Durante o solo de guitarra, mantenha a pegada pesada no Ride e adicione o Surdo junto com a Caixa ou no final do compasso.',
+        bassNotes: [40,0,40,0, 43,0,40,0, 45,0,47,0, 48,0,47,0],
+        simplified: {
+          crash: [2,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          ride:  [0,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,0,0],
+          hihat: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          snare: [0,0,0,0, 2,0,0,0, 0,0,0,0, 2,0,0,0],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,1,0],
+          kick:  [2,0,1,0, 0,0,0,0, 1,0,1,0, 0,0,0,0]
+        },
+        original: {
+          crash: [2,0,0,0, 0,0,0,0, 0,0,2,0, 0,0,0,0],
+          ride:  [0,0,2,0, 2,0,2,0, 2,0,0,0, 2,0,0,0],
+          hihat: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,1,0],
+          snare: [0,0,0,0, 2,0,0,3, 0,3,0,0, 2,0,0,0],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,2],
+          kick:  [2,0,1,0, 0,0,1,0, 1,0,2,0, 0,0,1,0]
+        }
+      },
+
+      // 9. Outro Piano — Decrescendo da Bateria (Compassos 87-90)
+      outro_taper: {
+        title: 'Entrada do Piano Outro (Decrescendo da Bateria)',
+        sticking: 'Toque suave — deixando o piano de Roddy Bottum brilhar',
+        coach: 'A bateria reduz a intensidade gradualmente marcando apenas os tempos principais antes de deixar o piano solo.',
+        bassNotes: [52,0,0,0, 55,0,0,0, 57,0,0,0, 59,0,0,0],
+        simplified: {
+          crash: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          ride:  [0,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],
+          hihat: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          snare: [0,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]
+        },
+        original: {
+          crash: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          ride:  [0,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,0,0],
+          hihat: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          snare: [0,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,1,0],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [1,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,0]
+        }
+      },
+
+      // 10. Piano Coda Solo (Compassos 91-106)
+      outro_piano_rest: {
+        title: 'Coda de Piano Solo (Bateria em Pausa / Compasso Contado)',
+        sticking: 'Pausa da Bateria (Acompanhe a contagem do compasso com o piano)',
+        coach: 'Na gravação original, Mike Bordin faz pausa enquanto o piano solo encerra a música até o compasso 106 (4:52).',
+        bassNotes: [64,0,62,0, 60,0,59,0, 57,0,55,0, 52,0,0,0],
+        simplified: {
+          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          ride:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hihat: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          snare: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]
+        },
+        original: {
+          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          ride:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hihat: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          tom1:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          snare: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          tom2:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]
+        }
+      }
+    };
+
+    // Estrutura oficial dos 106 compassos (4:52 a 87 BPM)
+    const SECTIONS = [
+      { id: 'intro_synth', name: '1. Intro & Entrada',  startBar: 1,  endBar: 2,   color: '#64748b', desc: 'Acorde inicial + Virada explosiva de entrada no Compasso 2' },
+      { id: 'intro_riff',  name: '2. Intro Riff',       startBar: 3,  endBar: 10,  color: '#f59e0b', desc: 'Riff principal pesado com condução aberta e viradas' },
+      { id: 'verse_1',     name: '3. Verso 1 (Rap)',    startBar: 11, endBar: 22,  color: '#10b981', desc: 'Groove funk-rock no chimbal fechado ("Can you feel it...")' },
+      { id: 'prechorus_1', name: '4. Pré-Refrão 1',     startBar: 23, endBar: 26,  color: '#0ea5e9', desc: '"It\'s it! What is it?" — Acentos sincronizados + Virada' },
+      { id: 'verse_2',     name: '5. Verso 2 (Rap)',    startBar: 27, endBar: 38,  color: '#10b981', desc: 'Retorno ao groove funk no chimbal fechado com ghost notes' },
+      { id: 'prechorus_2', name: '6. Pré-Refrão 2',     startBar: 39, endBar: 42,  color: '#0ea5e9', desc: '"It\'s it! What is it?" preparando o primeiro Refrão' },
+      { id: 'chorus_1',    name: '7. Refrão 1',         startBar: 43, endBar: 50,  color: '#f43f5e', desc: '"You want it all, but you can\'t have it..." — Condução aberta' },
+      { id: 'bridge',      name: '8. Ponte / Groove',   startBar: 51, endBar: 58,  color: '#8b5cf6', desc: 'Breakdown funk-metal preparando o solo de guitarra' },
+      { id: 'guitar_solo', name: '9. Solo de Guitarra', startBar: 59, endBar: 70,  color: '#ec4899', desc: 'Solo de Jim Martin — Bateria intensa com surdo e viradas' },
+      { id: 'chorus_2',    name: '10. Refrão Final',    startBar: 71, endBar: 86,  color: '#f43f5e', desc: 'Refrão duplo final + Clímax "It\'s it! What is it?"' },
+      { id: 'outro_piano', name: '11. Outro Piano',     startBar: 87, endBar: 106, color: '#6366f1', desc: 'Decrescendo da bateria (87–90) + Coda de Piano Solo (91–106)' }
+    ];
+
+    const TOTAL_MEASURES = 106;
+    const SONG_MEASURES = [];
+
+    function buildFullSongMeasures() {
+      for (let m = 1; m <= TOTAL_MEASURES; m++) {
+        const sec = SECTIONS.find(s => m >= s.startBar && m <= s.endBar);
+        let patternKey = 'verse_groove';
+
+        if (m === 1) patternKey = 'intro_wait';
+        else if (m === 2) patternKey = 'intro_pickup_fill';
+        else if (m >= 3 && m <= 10) {
+          if (m === 10) patternKey = 'section_fill';
+          else patternKey = (m % 2 === 1) ? 'main_riff_a' : 'main_riff_b';
+        }
+        else if ((m >= 11 && m <= 22) || (m >= 27 && m <= 38)) {
+          if (m === 22 || m === 38) patternKey = 'section_fill';
+          else if ((m - 10) % 4 === 0) patternKey = 'verse_turnaround';
+          else patternKey = 'verse_groove';
+        }
+        else if ((m >= 23 && m <= 26) || (m >= 39 && m <= 42)) {
+          if (m === 26 || m === 42) patternKey = 'section_fill';
+          else patternKey = 'prechorus_hit';
+        }
+        else if ((m >= 43 && m <= 50) || (m >= 71 && m <= 86)) {
+          if (m === 50 || m === 78 || m === 86) patternKey = 'section_fill';
+          else patternKey = 'chorus_drive';
+        }
+        else if (m >= 51 && m <= 58) {
+          if (m === 58) patternKey = 'section_fill';
+          else patternKey = (m % 2 === 1) ? 'verse_groove' : 'prechorus_hit';
+        }
+        else if (m >= 59 && m <= 70) {
+          if (m === 64 || m === 70) patternKey = 'section_fill';
+          else patternKey = 'guitar_solo_groove';
+        }
+        else if (m >= 87 && m <= 90) {
+          patternKey = 'outro_taper';
+        }
+        else {
+          patternKey = 'outro_piano_rest';
+        }
+
+        // Clona as grades para permitir edição interativa por compasso
+        const tpl = PATTERNS[patternKey];
+        SONG_MEASURES.push({
+          measure: m,
+          section: sec,
+          patternKey,
+          title: tpl.title,
+          sticking: tpl.sticking,
+          coach: tpl.coach,
+          bassNotes: [...tpl.bassNotes],
+          simplified: JSON.parse(JSON.stringify(tpl.simplified)),
+          original: JSON.parse(JSON.stringify(tpl.original))
+        });
+      }
+    }
+    buildFullSongMeasures();
+
+    // =========================================================================
+    // 2. ESTADO DO APLICATIVO E MOTOR DE ÁUDIO / TEMPO (WEB AUDIO API)
+    // =========================================================================
+    let state = {
+      difficulty: 'simplified', // 'simplified' | 'original'
+      playScope: 'full',        // 'full' | 'section' | 'bar'
+      isPlaying: false,
+      inCountIn: false,
+      countInBeat: 0,
+      bpm: 87,
+      currentMeasure: 1,        // 1..106
+      currentStep: 0,           // 0..15
+      completedBarsCount: 0,
+      mediaOffsetSec: 0.0,
+      activeMediaTab: 'local',
+      isRecordingVideo: false
+    };
+
     let audioCtx = null;
-    let mediaStreamDest = null;
+    let schedulerTimer = null;
+    let nextStepTime = 0;
+    let tapTimes = [];
     let mediaRecorder = null;
     let recordedChunks = [];
-    let isRecording = false;
+    let audioDestNode = null;
 
-    let isPlaying = false;
-    let isSimple = true;
-    let bpm = 86;
-    let currentMeasureIdx = 0;
-    let currentStep = 0;
-    let loopMode = 'section';
-    let autoAccel = false;
-    let loopCounter = 0;
-    let stepTimer = null;
-    let lastStepTimeMs = 0;
-
-    const kitGlow = { crash: 0, hh: 0, snare: 0, tom: 0, kick: 0 };
-
-    function ensureAudio() {
+    function ensureAudioContext() {
       if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        mediaStreamDest = audioCtx.createMediaStreamDestination();
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContextClass();
+        audioDestNode = audioCtx.createMediaStreamDestination();
       }
-      if (audioCtx.state === 'suspended') audioCtx.resume();
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
     }
 
-    function connectOut(node) {
+    function connectToMaster(node) {
       node.connect(audioCtx.destination);
-      if (mediaStreamDest) node.connect(mediaStreamDest);
+      if (audioDestNode) node.connect(audioDestNode);
     }
 
-    function synthKick() {
-      ensureAudio();
-      const t = audioCtx.currentTime;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(150, t);
-      osc.frequency.exponentialRampToValueAtTime(36, t + 0.13);
-      gain.gain.setValueAtTime(1.0, t);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
-      osc.connect(gain);
-      connectOut(gain);
-      osc.start(t);
-      osc.stop(t + 0.31);
-      kitGlow.kick = 1.0;
-    }
+    // Síntese realista de Bateria em Web Audio API (sem depender de samples externos bloqueados por CSP)
+    function playDrumSound(instId, intensity = 1, time = null) {
+      ensureAudioContext();
+      const t = time !== null ? time : audioCtx.currentTime;
+      const volSlider = document.getElementById('volDrums');
+      const baseVol = (volSlider ? parseInt(volSlider.value, 10) / 100 : 0.85);
+      if (baseVol <= 0.01) return;
 
-    function synthSnare() {
-      ensureAudio();
-      const t = audioCtx.currentTime;
-      const bufSize = Math.floor(audioCtx.sampleRate * 0.18);
-      const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
-      const data = buf.getChannelData(0);
-      for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
-      const noise = audioCtx.createBufferSource();
-      noise.buffer = buf;
-      const filter = audioCtx.createBiquadFilter();
-      filter.type = 'highpass';
-      filter.frequency.setValueAtTime(750, t);
-      const nGain = audioCtx.createGain();
-      nGain.gain.setValueAtTime(0.65, t);
-      nGain.gain.exponentialRampToValueAtTime(0.008, t + 0.17);
-      noise.connect(filter);
-      filter.connect(nGain);
-      connectOut(nGain);
-      noise.start(t);
+      const vel = intensity === 2 ? 1.0 : (intensity === 3 ? 0.32 : 0.78);
+      const gainVal = baseVol * vel;
 
-      const osc = audioCtx.createOscillator();
-      const oGain = audioCtx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(190, t);
-      osc.frequency.exponentialRampToValueAtTime(105, t + 0.08);
-      oGain.gain.setValueAtTime(0.55, t);
-      oGain.gain.exponentialRampToValueAtTime(0.008, t + 0.1);
-      osc.connect(oGain);
-      connectOut(oGain);
-      osc.start(t);
-      osc.stop(t + 0.11);
-      kitGlow.snare = 1.0;
-    }
+      if (instId === 'kick') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(145, t);
+        osc.frequency.exponentialRampToValueAtTime(42, t + 0.09);
+        osc.frequency.exponentialRampToValueAtTime(28, t + 0.28);
+        gain.gain.setValueAtTime(gainVal * 1.3, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.30);
+        osc.connect(gain);
+        connectToMaster(gain);
+        osc.start(t);
+        osc.stop(t + 0.31);
+      } else if (instId === 'snare') {
+        // Corpo do tambor
+        const osc = audioCtx.createOscillator();
+        const oscGain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(185, t);
+        osc.frequency.exponentialRampToValueAtTime(95, t + 0.1);
+        oscGain.gain.setValueAtTime(gainVal * 0.65, t);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+        osc.connect(oscGain);
+        connectToMaster(oscGain);
+        osc.start(t);
+        osc.stop(t + 0.15);
 
-    function synthCymbal(isCrash) {
-      ensureAudio();
-      const t = audioCtx.currentTime;
-      const dur = isCrash ? 0.6 : 0.065;
-      const bufSize = Math.floor(audioCtx.sampleRate * dur);
-      const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
-      const data = buf.getChannelData(0);
-      for (let i = 0; i < bufSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioCtx.sampleRate * (isCrash ? 0.19 : 0.022)));
+        // Esteira (Noise)
+        const bufferSize = audioCtx.sampleRate * 0.22;
+        const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+        const whiteNoise = audioCtx.createBufferSource();
+        whiteNoise.buffer = noiseBuffer;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.setValueAtTime(900, t);
+
+        const noiseGain = audioCtx.createGain();
+        noiseGain.gain.setValueAtTime(gainVal * 0.85, t);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, t + (intensity === 3 ? 0.09 : 0.21));
+
+        whiteNoise.connect(filter);
+        filter.connect(noiseGain);
+        connectToMaster(noiseGain);
+        whiteNoise.start(t);
+        whiteNoise.stop(t + 0.22);
+      } else if (instId === 'hihat' || instId === 'ride' || instId === 'crash') {
+        const dur = instId === 'crash' ? 0.85 : (instId === 'ride' ? 0.38 : (intensity === 2 ? 0.22 : 0.065));
+        const bufferSize = Math.floor(audioCtx.sampleRate * dur);
+        const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) output[i] = (Math.random() * 2 - 1);
+
+        const source = audioCtx.createBufferSource();
+        source.buffer = noiseBuffer;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = instId === 'crash' ? 'bandpass' : 'highpass';
+        filter.frequency.setValueAtTime(instId === 'crash' ? 4200 : (instId === 'ride' ? 5800 : 7500), t);
+
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(gainVal * (instId === 'crash' ? 0.7 : 0.55), t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+        source.connect(filter);
+        filter.connect(gain);
+        connectToMaster(gain);
+        source.start(t);
+        source.stop(t + dur);
+      } else if (instId === 'tom1' || instId === 'tom2') {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        const startFreq = instId === 'tom1' ? 160 : 108;
+        const endFreq = instId === 'tom1' ? 78 : 52;
+        osc.frequency.setValueAtTime(startFreq, t);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, t + 0.24);
+        gain.gain.setValueAtTime(gainVal * 0.95, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.26);
+        osc.connect(gain);
+        connectToMaster(gain);
+        osc.start(t);
+        osc.stop(t + 0.27);
       }
-      const noise = audioCtx.createBufferSource();
-      noise.buffer = buf;
-      const filter = audioCtx.createBiquadFilter();
-      filter.type = isCrash ? 'bandpass' : 'highpass';
-      filter.frequency.setValueAtTime(isCrash ? 4100 : 7600, t);
-      const gain = audioCtx.createGain();
-      gain.gain.setValueAtTime(isCrash ? 0.5 : 0.34, t);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
-      noise.connect(filter);
-      filter.connect(gain);
-      connectOut(gain);
-      noise.start(t);
-      if (isCrash) kitGlow.crash = 1.0;
-      else kitGlow.hh = 1.0;
     }
 
-    function synthTom(pitch = 135) {
-      ensureAudio();
+    function playMetronomeClick(isDownbeat, isCountIn = false) {
+      const chk = document.getElementById('chkMetronome');
+      if (!chk || (!chk.checked && !isCountIn)) return;
+      ensureAudioContext();
+      const volSlider = document.getElementById('volClick');
+      const vol = (volSlider ? parseInt(volSlider.value, 10) / 100 : 0.5);
+      if (vol <= 0.01) return;
+
       const t = audioCtx.currentTime;
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(pitch, t);
-      osc.frequency.exponentialRampToValueAtTime(58, t + 0.2);
-      gain.gain.setValueAtTime(0.85, t);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(isDownbeat ? 1200 : 800, t);
+      gain.gain.setValueAtTime(vol * (isDownbeat ? 0.6 : 0.35), t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.045);
       osc.connect(gain);
-      connectOut(gain);
+      connectToMaster(gain);
       osc.start(t);
-      osc.stop(t + 0.23);
-      kitGlow.tom = 1.0;
+      osc.stop(t + 0.05);
     }
 
-    function synthClick(isBeat1, isQuarter) {
-      if (!document.getElementById('chkMetro').checked) return;
-      ensureAudio();
-      const t = audioCtx.currentTime;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(isBeat1 ? 1300 : (isQuarter ? 900 : 620), t);
-      gain.gain.setValueAtTime(isQuarter ? 0.16 : 0.05, t);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
-      osc.connect(gain);
-      connectOut(gain);
-      osc.start(t);
-      osc.stop(t + 0.035);
-    }
+    function playBackingNote(midiNote, isPianoOutro) {
+      const chk = document.getElementById('chkBackingSynth');
+      if (!chk || !chk.checked || !midiNote) return;
+      ensureAudioContext();
+      const volSlider = document.getElementById('volSynth');
+      const vol = (volSlider ? parseInt(volSlider.value, 10) / 100 : 0.45);
+      if (vol <= 0.01) return;
 
-    function synthBass(freq) {
-      if (!document.getElementById('chkBass').checked || !freq) return;
-      ensureAudio();
       const t = audioCtx.currentTime;
+      const freq = 440 * Math.pow(2, (midiNote - 69) / 12);
       const osc = audioCtx.createOscillator();
       const filter = audioCtx.createBiquadFilter();
       const gain = audioCtx.createGain();
-      osc.type = 'sawtooth';
+
+      osc.type = isPianoOutro ? 'triangle' : 'sawtooth';
       osc.frequency.setValueAtTime(freq, t);
+
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(680, t);
-      filter.frequency.exponentialRampToValueAtTime(170, t + 0.19);
-      gain.gain.setValueAtTime(0.22, t);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+      filter.frequency.setValueAtTime(isPianoOutro ? 1800 : 650, t);
+
+      const dur = isPianoOutro ? 0.45 : 0.22;
+      gain.gain.setValueAtTime(vol * 0.32, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
       osc.connect(filter);
       filter.connect(gain);
-      connectOut(gain);
+      connectToMaster(gain);
       osc.start(t);
-      osc.stop(t + 0.23);
+      osc.stop(t + dur);
     }
 
-    function getCurrentMeasure() { return MEASURES[currentMeasureIdx]; }
-    function getCurrentPattern() {
-      const m = getCurrentMeasure();
-      return isSimple ? m.simple : m.orig;
+    function flashDrumPad(instId) {
+      const pad = document.getElementById('pad-' + instId);
+      if (!pad) return;
+      pad.classList.add('hit');
+      setTimeout(() => pad.classList.remove('hit'), 110);
     }
 
-    function describeStepAction(pat, s) {
-      const list = [];
-      if (pat.crash[s]) list.push('Crash [MD]');
-      if (pat.hh[s]) list.push('Chimbal [MD]');
-      if (pat.snare[s]) list.push('Caixa [ME]');
-      if (pat.tom[s]) list.push('Tons [MD/ME]');
-      if (pat.kick[s]) list.push('Bumbo [PD]');
-      return list.length ? list.join(' + ') : '— (Apenas contar o tempo)';
+    function triggerManualDrum(instId) {
+      playDrumSound(instId, 2);
+      flashDrumPad(instId);
     }
 
-    function executeStep(s) {
-      lastStepTimeMs = performance.now();
-      const m = getCurrentMeasure();
-      const pat = getCurrentPattern();
-      const drumsOn = document.getElementById('chkDrums').checked;
+    // =========================================================================
+    // 3. SEQUENCIADOR E SINCRONIZAÇÃO DE COMPASSOS / VÍDEO
+    // =========================================================================
+    function getStepDurationMs() {
+      // 1 batida (semínima) = 60000 / bpm ms; 1 semicolcheia (1/4 de batida) = 15000 / bpm ms
+      return 15000 / state.bpm;
+    }
 
-      synthClick(s === 0, s % 4 === 0);
-      if (drumsOn) {
-        if (pat.crash[s]) synthCymbal(true);
-        if (pat.hh[s]) synthCymbal(false);
-        if (pat.snare[s]) synthSnare();
-        if (pat.tom[s]) synthTom(s % 2 === 0 ? 150 : 112);
-        if (pat.kick[s]) synthKick();
+    function formatSeconds(sec) {
+      const s = Math.max(0, Math.floor(sec));
+      const m = Math.floor(s / 60);
+      const rem = s % 60;
+      return `${m}:${rem < 10 ? '0' : ''}${rem}`;
+    }
+
+    function getMeasureElapsedSeconds(measureNum, stepNum) {
+      const totalSteps = (measureNum - 1) * 16 + stepNum;
+      return totalSteps * (15 / state.bpm);
+    }
+
+    function syncExternalMediaToCurrentPosition(forceSeek = false) {
+      const chkSync = document.getElementById('chkSyncMedia');
+      if (!chkSync || !chkSync.checked) return;
+
+      const videoEl = document.getElementById('localVideoPlayer');
+      if (videoEl && videoEl.readyState >= 1) {
+        const targetSec = Math.max(0, getMeasureElapsedSeconds(state.currentMeasure, 0) * (state.bpm / 87) + state.mediaOffsetSec);
+        videoEl.playbackRate = state.bpm / 87;
+        if (forceSeek || Math.abs(videoEl.currentTime - targetSec) > 0.45) {
+          videoEl.currentTime = targetSec;
+        }
+        if (state.isPlaying && !state.inCountIn && videoEl.paused) {
+          videoEl.play().catch(() => {});
+        } else if ((!state.isPlaying || state.inCountIn) && !videoEl.paused) {
+          videoEl.pause();
+        }
       }
-      if (pat.bass && pat.bass[s]) synthBass(pat.bass[s]);
+    }
 
-      const beatNum = Math.floor(s / 4) + 1;
-      document.getElementById('videoSectionLabel').textContent = m.section;
-      document.getElementById('videoBarLabel').textContent = `Compasso ${m.id} / ${MEASURES.length}`;
-      document.getElementById('hudSubdivision').textContent = `Tempo ${beatNum} [ ${SUB_NAMES[s]} ]`;
-      document.getElementById('hudAction').textContent = describeStepAction(pat, s);
-      document.getElementById('measureExplain').textContent = `📌 ${m.title}: ${m.desc}`;
-      highlightMeasureCard();
+    function executeCurrentStep() {
+      const mObj = SONG_MEASURES[state.currentMeasure - 1];
+      const grid = mObj[state.difficulty];
+
+      // Metrônomo nas cabeças de tempo (passos 0, 4, 8, 12)
+      if (state.currentStep % 4 === 0) {
+        playMetronomeClick(state.currentStep === 0, false);
+      }
+
+      // Tocar peças da bateria ativas neste passo
+      const playDrums = document.getElementById('chkDrumsAudio')?.checked;
+      INSTRUMENTS.forEach(inst => {
+        const val = grid[inst.id][state.currentStep];
+        if (val > 0) {
+          if (playDrums) playDrumSound(inst.id, val);
+          flashDrumPad(inst.id);
+        }
+      });
+
+      // Riff Guia (Baixo / Piano Outro)
+      const bassNote = mObj.bassNotes[state.currentStep];
+      if (bassNote > 0) {
+        playBackingNote(bassNote, state.currentMeasure >= 87);
+      }
+
+      updateHUDAndStepHighlight();
+      drawScoreVideoCanvas();
     }
 
     function advanceStep() {
-      currentStep++;
-      if (currentStep >= 16) {
-        currentStep = 0;
-        loopCounter++;
-        if (autoAccel && loopCounter % 2 === 0 && bpm < 120) {
-          setBpm(Math.min(125, bpm + 2));
+      if (!state.isPlaying) return;
+
+      if (state.inCountIn) {
+        playMetronomeClick(state.countInBeat === 0, true);
+        drawScoreVideoCanvas();
+        state.countInBeat++;
+        if (state.countInBeat >= 4) {
+          state.inCountIn = false;
+          state.currentStep = 0;
+          syncExternalMediaToCurrentPosition(true);
         }
-        if (loopMode === 'bar') {
-          // stay
-        } else if (loopMode === 'section') {
-          const curSec = MEASURES[currentMeasureIdx].section;
-          const nextIdx = (currentMeasureIdx + 1) % MEASURES.length;
-          if (MEASURES[nextIdx].section === curSec) {
-            currentMeasureIdx = nextIdx;
+        schedulerTimer = setTimeout(advanceStep, getStepDurationMs() * 4);
+        return;
+      }
+
+      executeCurrentStep();
+
+      // Prepara próximo passo
+      let nextStep = state.currentStep + 1;
+      if (nextStep >= 16) {
+        nextStep = 0;
+        state.completedBarsCount++;
+
+        // Auto Speed-Up (+2 BPM a cada 4 compassos)
+        if (document.getElementById('chkAutoSpeed')?.checked && state.completedBarsCount % 4 === 0) {
+          setBpm(Math.min(130, state.bpm + 2));
+        }
+
+        const currentSec = SONG_MEASURES[state.currentMeasure - 1].section;
+        if (state.playScope === 'bar') {
+          // Permanece no mesmo compasso
+        } else if (state.playScope === 'section') {
+          if (state.currentMeasure >= currentSec.endBar) {
+            state.currentMeasure = currentSec.startBar;
+            syncExternalMediaToCurrentPosition(true);
           } else {
-            currentMeasureIdx = MEASURES.findIndex(x => x.section === curSec);
+            state.currentMeasure++;
           }
+          renderStepSequencerGrid();
+          highlightActiveTimelineBar();
         } else {
-          currentMeasureIdx = (currentMeasureIdx + 1) % MEASURES.length;
+          // Música Completa (1..106)
+          if (state.currentMeasure >= TOTAL_MEASURES) {
+            stopPlayback();
+            return;
+          } else {
+            state.currentMeasure++;
+            renderStepSequencerGrid();
+            highlightActiveTimelineBar();
+          }
+        }
+      }
+      state.currentStep = nextStep;
+      schedulerTimer = setTimeout(advanceStep, getStepDurationMs());
+    }
+
+    function togglePlay() {
+      ensureAudioContext();
+      if (state.isPlaying) {
+        state.isPlaying = false;
+        clearTimeout(schedulerTimer);
+        syncExternalMediaToCurrentPosition(false);
+        document.getElementById('playIcon').textContent = '▶';
+        document.getElementById('playText').textContent = 'CONTINUAR (Espaço)';
+        drawScoreVideoCanvas();
+      } else {
+        state.isPlaying = true;
+        document.getElementById('playIcon').textContent = '⏸';
+        document.getElementById('playText').textContent = 'PAUSAR (Espaço)';
+        const useCountIn = document.getElementById('chkCountIn')?.checked && state.currentStep === 0;
+        if (useCountIn) {
+          state.inCountIn = true;
+          state.countInBeat = 0;
+        } else {
+          state.inCountIn = false;
+          syncExternalMediaToCurrentPosition(true);
+        }
+        advanceStep();
+      }
+    }
+
+    function stopPlayback() {
+      state.isPlaying = false;
+      state.inCountIn = false;
+      clearTimeout(schedulerTimer);
+      state.currentStep = 0;
+      const videoEl = document.getElementById('localVideoPlayer');
+      if (videoEl) videoEl.pause();
+      document.getElementById('playIcon').textContent = '▶';
+      document.getElementById('playText').textContent = 'TOCAR (Espaço)';
+      updateHUDAndStepHighlight();
+      drawScoreVideoCanvas();
+    }
+
+    function jumpToMeasure(m) {
+      state.currentMeasure = Math.max(1, Math.min(TOTAL_MEASURES, m));
+      state.currentStep = 0;
+      renderStepSequencerGrid();
+      highlightActiveTimelineBar();
+      updateHUDAndStepHighlight();
+      syncExternalMediaToCurrentPosition(true);
+      drawScoreVideoCanvas();
+    }
+
+    function stepMeasure(delta) {
+      jumpToMeasure(state.currentMeasure + delta);
+    }
+
+    function setDifficulty(diff) {
+      state.difficulty = diff;
+      const btnSimp = document.getElementById('btnModeSimplified');
+      const btnOrig = document.getElementById('btnModeOriginal');
+      if (diff === 'simplified') {
+        btnSimp.className = 'px-3 py-1.5 rounded-md font-semibold bg-[var(--primary)] text-[var(--primary-foreground)] transition';
+        btnOrig.className = 'px-3 py-1.5 rounded-md font-semibold text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition';
+      } else {
+        btnOrig.className = 'px-3 py-1.5 rounded-md font-semibold bg-[var(--primary)] text-[var(--primary-foreground)] transition';
+        btnSimp.className = 'px-3 py-1.5 rounded-md font-semibold text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition';
+      }
+      renderStepSequencerGrid();
+      updateHUDAndStepHighlight();
+      drawScoreVideoCanvas();
+    }
+
+    function setPlayScope(scope) {
+      state.playScope = scope;
+    }
+
+    function setBpm(val) {
+      state.bpm = Math.max(40, Math.min(130, parseInt(val, 10) || 87));
+      document.getElementById('bpmSlider').value = state.bpm;
+      const pct = Math.round((state.bpm / 87) * 100);
+      document.getElementById('bpmReadout').textContent = `${state.bpm} BPM (${pct}%)`;
+      const totalSongSec = TOTAL_MEASURES * 4 * (60 / state.bpm);
+      document.getElementById('totalBarsBadge').textContent = `106 Compassos (${formatSeconds(totalSongSec)})`;
+      syncExternalMediaToCurrentPosition(false);
+      updateHUDAndStepHighlight();
+    }
+
+    function adjustBpm(delta) {
+      setBpm(state.bpm + delta);
+    }
+
+    function tapTempo() {
+      const now = performance.now();
+      tapTimes.push(now);
+      if (tapTimes.length > 5) tapTimes.shift();
+      if (tapTimes.length >= 2) {
+        let sum = 0;
+        for (let i = 1; i < tapTimes.length; i++) sum += (tapTimes[i] - tapTimes[i - 1]);
+        const avgMs = sum / (tapTimes.length - 1);
+        const tappedBpm = Math.round(60000 / avgMs);
+        if (tappedBpm >= 40 && tappedBpm <= 130) setBpm(tappedBpm);
+      }
+    }
+
+    // =========================================================================
+    // 4. RENDERIZAÇÃO DA UI: MAPA DE SEÇÕES, TIMELINE E GRADE DE 16 PASSOS
+    // =========================================================================
+    function renderSectionsAndTimeline() {
+      const secContainer = document.getElementById('sectionButtonsContainer');
+      secContainer.innerHTML = '';
+      SECTIONS.forEach(sec => {
+        const btn = document.createElement('button');
+        btn.id = 'sec-btn-' + sec.id;
+        btn.onclick = () => jumpToMeasure(sec.startBar);
+        btn.className = 'p-2 rounded-lg border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--secondary)] text-left transition flex flex-col justify-between';
+        btn.innerHTML = `
+          <div class="flex items-center justify-between gap-1">
+            <span class="font-bold truncate" style="color:${sec.color}">${sec.name}</span>
+          </div>
+          <div class="text-[11px] font-mono text-[var(--muted-foreground)] mt-0.5">
+            Comp. ${sec.startBar}–${sec.endBar}
+          </div>
+        `;
+        secContainer.appendChild(btn);
+      });
+
+      const timeline = document.getElementById('barsTimeline');
+      timeline.style.gridTemplateColumns = 'repeat(53, minmax(0, 1fr))';
+      timeline.innerHTML = '';
+      SONG_MEASURES.forEach(mObj => {
+        const cell = document.createElement('button');
+        cell.id = 'bar-cell-' + mObj.measure;
+        cell.onclick = () => jumpToMeasure(mObj.measure);
+        cell.onmouseenter = () => {
+          document.getElementById('barHoverInfo').textContent =
+            `Compasso ${mObj.measure} • ${mObj.section.name} • ${mObj.title}`;
+        };
+        cell.className = 'h-5 rounded-sm text-[10px] font-mono flex items-center justify-center transition border border-transparent';
+        cell.style.backgroundColor = mObj.section.color + '33';
+        cell.textContent = mObj.measure;
+        timeline.appendChild(cell);
+      });
+    }
+
+    function highlightActiveTimelineBar() {
+      const mObj = SONG_MEASURES[state.currentMeasure - 1];
+      document.getElementById('currentSectionDesc').textContent =
+        `${mObj.section.name} (Compassos ${mObj.section.startBar}–${mObj.section.endBar}): ${mObj.section.desc}`;
+
+      SECTIONS.forEach(sec => {
+        const btn = document.getElementById('sec-btn-' + sec.id);
+        if (!btn) return;
+        if (sec.id === mObj.section.id) {
+          btn.style.borderColor = sec.color;
+          btn.style.boxShadow = `0 0 0 1px ${sec.color}`;
+        } else {
+          btn.style.borderColor = 'var(--border)';
+          btn.style.boxShadow = 'none';
+        }
+      });
+
+      for (let i = 1; i <= TOTAL_MEASURES; i++) {
+        const cell = document.getElementById('bar-cell-' + i);
+        if (!cell) continue;
+        const secColor = SONG_MEASURES[i - 1].section.color;
+        if (i === state.currentMeasure) {
+          cell.style.backgroundColor = secColor;
+          cell.style.color = '#ffffff';
+          cell.style.fontWeight = '700';
+        } else {
+          cell.style.backgroundColor = secColor + '28';
+          cell.style.color = 'var(--foreground)';
+          cell.style.fontWeight = '400';
         }
       }
     }
 
-    function runLoop() {
-      if (!isPlaying) return;
-      executeStep(currentStep);
-      const stepMs = ((60 / bpm) / 4) * 1000;
-      stepTimer = setTimeout(() => {
-        advanceStep();
-        runLoop();
-      }, stepMs);
+    function renderStepSequencerGrid() {
+      const container = document.getElementById('stepSequencerGrid');
+      const mObj = SONG_MEASURES[state.currentMeasure - 1];
+      const grid = mObj[state.difficulty];
+
+      document.getElementById('activePatternTitle').textContent =
+        `Compasso ${state.currentMeasure}: ${mObj.title}`;
+      document.getElementById('stickingTip').textContent = mObj.sticking;
+      document.getElementById('coachText').textContent = mObj.coach;
+
+      let html = `
+        <div class="grid grid-cols-18 gap-1 items-center text-xs font-mono pb-1 border-b border-[var(--card-border)]" style="grid-template-columns: 110px repeat(16, minmax(0, 1fr));">
+          <div class="text-[var(--muted-foreground)] font-sans font-semibold">Subdivisão:</div>
+      `;
+      for (let s = 0; s < 16; s++) {
+        const isBeatHead = s % 4 === 0;
+        html += `
+          <div id="col-hdr-${s}" class="text-center py-0.5 rounded ${isBeatHead ? 'font-bold text-[var(--primary)] bg-[var(--secondary)]' : 'text-[var(--muted-foreground)]'}">
+            ${SUBDIVISION_LABELS[s]}
+          </div>
+        `;
+      }
+      html += `</div>`;
+
+      INSTRUMENTS.forEach(inst => {
+        html += `
+          <div class="grid gap-1 items-center py-0.5" style="grid-template-columns: 110px repeat(16, minmax(0, 1fr));">
+            <div class="text-xs font-semibold flex items-center gap-1.5 truncate">
+              <span class="w-2.5 h-2.5 rounded-full inline-block" style="background:${inst.color}"></span>
+              <span class="truncate">${inst.name}</span>
+            </div>
+        `;
+        for (let s = 0; s < 16; s++) {
+          const val = grid[inst.id][s];
+          const isBeatHead = s % 4 === 0;
+          let bgStyle = isBeatHead ? 'background: var(--secondary);' : 'background: var(--background);';
+          let symbol = '';
+          if (val === 1) {
+            bgStyle = `background: ${inst.color}cc; color: #fff;`;
+            symbol = inst.noteType === 'x' ? '✕' : '●';
+          } else if (val === 2) {
+            bgStyle = `background: ${inst.color}; color: #fff; font-weight: 800;`;
+            symbol = inst.noteType === 'x' ? '◎' : '⬤';
+          } else if (val === 3) {
+            bgStyle = `background: ${inst.color}66; color: var(--foreground);`;
+            symbol = '(●)';
+          }
+          html += `
+            <button id="cell-${inst.id}-${s}" onclick="toggleGridCell('${inst.id}', ${s})"
+              class="step-cell h-7 rounded border border-[var(--border)] text-xs font-mono flex items-center justify-center"
+              style="${bgStyle}" title="Compasso ${state.currentMeasure} • ${inst.name} • Tempo ${Math.floor(s/4)+1} (${SUBDIVISION_LABELS[s]})">
+              ${symbol}
+            </button>
+          `;
+        }
+        html += `</div>`;
+      });
+
+      container.innerHTML = html;
     }
 
-    function setBpm(val) {
-      bpm = val;
-      document.getElementById('bpmRange').value = bpm;
-      document.getElementById('bpmValue').textContent = `${bpm} BPM`;
+    function toggleGridCell(instId, stepIdx) {
+      const mObj = SONG_MEASURES[state.currentMeasure - 1];
+      const grid = mObj[state.difficulty];
+      const cur = grid[instId][stepIdx];
+      // Ciclo: 0 (vazio) -> 1 (normal) -> 2 (acento) -> 3 (ghost note se caixa) -> 0
+      let next = 0;
+      if (cur === 0) next = 1;
+      else if (cur === 1) next = 2;
+      else if (cur === 2 && instId === 'snare') next = 3;
+      else next = 0;
+
+      grid[instId][stepIdx] = next;
+      if (next > 0) playDrumSound(instId, next);
+      renderStepSequencerGrid();
+      updateHUDAndStepHighlight();
+      drawScoreVideoCanvas();
     }
 
-    function renderVideoFrame() {
-      const canvas = document.getElementById('videoStageCanvas');
+    function updateHUDAndStepHighlight() {
+      const mStr = String(state.currentMeasure).padStart(3, '0');
+      document.getElementById('hudMeasure').textContent = `${mStr} / ${TOTAL_MEASURES}`;
+
+      const beatNum = Math.floor(state.currentStep / 4) + 1;
+      const subLbl = SUBDIVISION_LABELS[state.currentStep];
+      document.getElementById('hudBeat').textContent = `Tempo ${beatNum} [ ${subLbl} ]`;
+
+      const elapsed = getMeasureElapsedSeconds(state.currentMeasure, state.currentStep);
+      const total = TOTAL_MEASURES * 4 * (60 / state.bpm);
+      document.getElementById('hudTime').textContent = `${formatSeconds(elapsed)} / ${formatSeconds(total)}`;
+
+      // Destacar coluna ativa na grade
+      for (let s = 0; s < 16; s++) {
+        const hdr = document.getElementById(`col-hdr-${s}`);
+        if (hdr) {
+          if (s === state.currentStep) {
+            hdr.style.background = 'var(--primary)';
+            hdr.style.color = 'var(--primary-foreground)';
+          } else {
+            hdr.style.background = (s % 4 === 0) ? 'var(--secondary)' : 'transparent';
+            hdr.style.color = (s % 4 === 0) ? 'var(--primary)' : 'var(--muted-foreground)';
+          }
+        }
+        INSTRUMENTS.forEach(inst => {
+          const cell = document.getElementById(`cell-${inst.id}-${s}`);
+          if (cell) {
+            if (s === state.currentStep) cell.classList.add('step-active');
+            else cell.classList.remove('step-active');
+          }
+        });
+      }
+
+      // Mostrar quais peças devem ser tocadas no passo atual
+      const mObj = SONG_MEASURES[state.currentMeasure - 1];
+      const grid = mObj[state.difficulty];
+      const activeHits = [];
+      INSTRUMENTS.forEach(inst => {
+        const v = grid[inst.id][state.currentStep];
+        if (v > 0) activeHits.push(v === 3 ? `${inst.short} (Ghost)` : inst.short);
+      });
+      const beatDisplay = `Tempo ${beatNum} (${subLbl.toUpperCase()})`;
+      document.getElementById('exactBeatCallout').textContent =
+        activeHits.length > 0
+          ? `AGORA [${beatDisplay}]: ${activeHits.join(' + ')}`
+          : `AGORA [${beatDisplay}]: (Sustentar / Silêncio)`;
+    }
+
+    // =========================================================================
+    // 5. MONITOR DE VÍDEO & PARTITURA EM CANVAS (COM ADAPTAÇÃO DE TEMA E GRAVAÇÃO)
+    // =========================================================================
+    function drawScoreVideoCanvas() {
+      const canvas = document.getElementById('scoreVideoCanvas');
+      if (!canvas) return;
       const ctx = canvas.getContext('2d');
       const W = canvas.width;
       const H = canvas.height;
 
-      ctx.fillStyle = '#090d16';
+      const isLight = document.documentElement.classList.contains('light');
+      const bgCol = isLight ? '#f8fafc' : '#0f172a';
+      const cardCol = isLight ? '#ffffff' : '#1e293b';
+      const textCol = isLight ? '#0f172a' : '#f8fafc';
+      const mutedCol = isLight ? '#64748b' : '#94a3b8';
+      const staffCol = isLight ? '#cbd5e1' : '#334155';
+
+      const mObj = SONG_MEASURES[state.currentMeasure - 1];
+      const grid = mObj[state.difficulty];
+
+      // Fundo
+      ctx.fillStyle = bgCol;
       ctx.fillRect(0, 0, W, H);
 
-      const m = getCurrentMeasure();
-      const pat = getCurrentPattern();
+      // Faixa Superior de Vídeo (Informações da Seção, Compasso, BPM e Modo)
+      ctx.fillStyle = cardCol;
+      ctx.fillRect(0, 0, W, 54);
+      ctx.fillStyle = mObj.section.color;
+      ctx.fillRect(0, 0, 8, 54);
 
-      ctx.fillStyle = '#111827';
-      ctx.fillRect(0, 0, W, 172);
-      ctx.strokeStyle = '#1e293b';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(0, 172);
-      ctx.lineTo(W, 172);
-      ctx.stroke();
+      ctx.fillStyle = textCol;
+      ctx.font = 'bold 16px sans-serif';
+      ctx.fillText(`${mObj.section.name} — Compasso ${state.currentMeasure} de ${TOTAL_MEASURES}`, 20, 24);
 
-      ctx.fillStyle = '#94a3b8';
-      ctx.font = 'bold 12px sans-serif';
-      ctx.textAlign = 'left';
-      ctx.fillText(`FAITH NO MORE - EPIC (${isSimple ? 'VERSÃO SIMPLIFICADA' : 'VERSÃO ORIGINAL'})  |  ${bpm} BPM`, 18, 22);
-      ctx.fillStyle = '#38bdf8';
-      ctx.font = 'bold 14px sans-serif';
-      ctx.fillText(`${m.section} — ${m.title}`, 18, 42);
-      ctx.fillStyle = '#cbd5e1';
+      ctx.fillStyle = mutedCol;
       ctx.font = '12px sans-serif';
-      ctx.fillText(m.desc, 18, 62);
+      const diffBadge = state.difficulty === 'simplified' ? '★ VERSÃO SIMPLIFICADA' : '🔥 ORIGINAL (MIKE BORDIN)';
+      ctx.fillText(`${mObj.title}  •  ${diffBadge}  •  ${state.bpm} BPM`, 20, 44);
 
-      const activeBeat = Math.floor(currentStep / 4);
+      // Indicador Grande de Tempo (1 - 2 - 3 - 4) no canto direito
+      const beatIdx = Math.floor(state.currentStep / 4);
       for (let b = 0; b < 4; b++) {
-        const bx = 42 + b * 54;
-        const by = 115;
-        const isCurrentBeat = b === activeBeat;
+        const bx = W - 210 + b * 48;
+        const by = 11;
+        const active = !state.inCountIn && b === beatIdx;
+        ctx.fillStyle = active ? mObj.section.color : (isLight ? '#e2e8f0' : '#334155');
         ctx.beginPath();
-        ctx.arc(bx, by, isCurrentBeat ? 20 : 16, 0, Math.PI * 2);
-        ctx.fillStyle = isCurrentBeat ? (b === 0 ? '#f59e0b' : '#38bdf8') : '#1e293b';
+        ctx.roundRect(bx, by, 40, 32, 6);
         ctx.fill();
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = isCurrentBeat ? '#ffffff' : '#334155';
-        ctx.stroke();
 
-        ctx.fillStyle = isCurrentBeat ? '#090d16' : '#94a3b8';
-        ctx.font = 'bold 15px monospace';
+        ctx.fillStyle = active ? '#ffffff' : textCol;
+        ctx.font = 'bold 16px monospace';
         ctx.textAlign = 'center';
-        ctx.fillText(String(b + 1), bx, by + 5);
+        ctx.fillText(String(b + 1), bx + 20, by + 22);
       }
-      ctx.fillStyle = '#fde047';
-      ctx.font = 'bold 12px monospace';
       ctx.textAlign = 'left';
-      ctx.fillText(`SUBDIVISÃO EXATA: [ ${SUB_NAMES[currentStep]} ]   →   ${describeStepAction(pat, currentStep)}`, 24, 156);
 
-      drawDrumPiece(ctx, 595, 58, 34, 'CRASH', '#fbbf24', kitGlow.crash, 'MD');
-      drawDrumPiece(ctx, 560, 118, 28, 'CHIMBAL', '#fde047', kitGlow.hh, 'MD');
-      drawDrumPiece(ctx, 650, 122, 32, 'CAIXA', '#f43f5e', kitGlow.snare, 'ME');
-      drawDrumPiece(ctx, 745, 110, 40, 'BUMBO (PÉ)', '#38bdf8', kitGlow.kick, 'PD');
-      drawDrumPiece(ctx, 845, 98, 33, 'TONS', '#c084fc', kitGlow.tom, 'MD/ME');
+      // Margens da Partitura
+      const leftMargin = 95;
+      const rightMargin = W - 30;
+      const staffWidth = rightMargin - leftMargin;
+      const stepWidth = staffWidth / 16;
+      const staffTop = 92;
+      const lineSpacing = 24;
 
-      for (const k of Object.keys(kitGlow)) {
-        kitGlow[k] = Math.max(0, kitGlow[k] - 0.08);
-      }
-
-      const leftMargin = 100;
-      const rightPad = 20;
-      const gridW = W - leftMargin - rightPad;
-      const colW = gridW / 16;
-
-      const stepMs = ((60 / bpm) / 4) * 1000;
-      const elapsed = isPlaying ? Math.min(1, (performance.now() - lastStepTimeMs) / stepMs) : 0;
-      const smoothStep = currentStep + elapsed * 0.85;
-
-      const activeColX = leftMargin + currentStep * colW;
-      ctx.fillStyle = 'rgba(56, 189, 248, 0.17)';
-      ctx.fillRect(activeColX, 175, colW, H - 175);
-
-      ctx.font = 'bold 13px monospace';
-      ctx.textAlign = 'center';
-      for (let s = 0; s < 16; s++) {
-        const cx = leftMargin + s * colW + colW / 2;
-        const isBeat = s % 4 === 0;
-        const isCur = s === currentStep;
-
-        if (isCur) {
-          ctx.fillStyle = '#38bdf8';
-          ctx.fillRect(leftMargin + s * colW + 2, 180, colW - 4, 22);
-          ctx.fillStyle = '#090d16';
-        } else {
-          ctx.fillStyle = isBeat ? '#f8fafc' : '#64748b';
-        }
-        ctx.fillText(SUB_NAMES[s], cx, 196);
-
-        ctx.strokeStyle = isBeat ? '#334155' : 'rgba(148, 163, 184, 0.12)';
-        ctx.lineWidth = isBeat ? 1.5 : 0.8;
+      // Desenhar as 5 linhas do Pentagrama de Bateria
+      ctx.strokeStyle = staffCol;
+      ctx.lineWidth = 1.5;
+      for (let l = 1; l <= 5; l++) {
+        const y = staffTop + l * lineSpacing;
         ctx.beginPath();
-        ctx.moveTo(leftMargin + s * colW, 204);
-        ctx.lineTo(leftMargin + s * colW, H - 34);
+        ctx.moveTo(leftMargin - 10, y);
+        ctx.lineTo(rightMargin, y);
         ctx.stroke();
       }
 
-      const staffTop = 238;
-      const lineGap = 24;
-      ctx.strokeStyle = '#475569';
-      ctx.lineWidth = 1.2;
-      for (let i = 0; i < 5; i++) {
-        const y = staffTop + i * lineGap;
-        ctx.beginPath();
-        ctx.moveTo(14, y);
-        ctx.lineTo(W - rightPad, y);
-        ctx.stroke();
-      }
-
-      ctx.fillStyle = '#94a3b8';
-      ctx.fillRect(22, staffTop + lineGap, 4, lineGap * 2);
-      ctx.fillRect(30, staffTop + lineGap, 4, lineGap * 2);
-      ctx.fillStyle = '#f8fafc';
-      ctx.font = 'bold 20px serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('4', 48, staffTop + lineGap * 1.7);
-      ctx.fillText('4', 48, staffTop + lineGap * 3.7);
-
-      const yCrash = staffTop - 13;
-      const yHH    = staffTop - 1;
-      const yTom   = staffTop + lineGap * 1.1;
-      const ySnare = staffTop + lineGap * 1.75;
-      const yKick  = staffTop + lineGap * 3.45;
-
-      ctx.font = 'bold 11px sans-serif';
-      ctx.textAlign = 'left';
-      ctx.fillStyle = '#fbbf24'; ctx.fillText('Crash', 60, yCrash + 4);
-      ctx.fillStyle = '#fde047'; ctx.fillText('Chimbal', 60, yHH + 4);
-      ctx.fillStyle = '#c084fc'; ctx.fillText('Tons', 60, yTom + 4);
-      ctx.fillStyle = '#f43f5e'; ctx.fillText('Caixa', 60, ySnare + 4);
-      ctx.fillStyle = '#38bdf8'; ctx.fillText('Bumbo', 60, yKick + 4);
-
-      for (let s = 0; s < 16; s++) {
-        const cx = leftMargin + s * colW + colW / 2;
-        const isCur = s === currentStep;
-        const hasUpper = pat.crash[s] || pat.hh[s] || pat.snare[s] || pat.tom[s];
-
-        if (hasUpper) {
-          const topY = pat.crash[s] ? yCrash : (pat.hh[s] ? yHH : (pat.tom[s] ? yTom : ySnare));
-          const botY = pat.snare[s] ? ySnare : (pat.tom[s] ? yTom : topY);
-          ctx.strokeStyle = isCur ? '#ffffff' : '#cbd5e1';
-          ctx.lineWidth = isCur ? 2.4 : 1.6;
+      // Barras verticais de divisão de tempo (1, 2, 3, 4)
+      for (let s = 0; s <= 16; s++) {
+        const x = leftMargin + s * stepWidth;
+        if (s % 4 === 0) {
+          ctx.strokeStyle = isLight ? '#94a3b8' : '#475569';
+          ctx.lineWidth = (s === 0 || s === 16) ? 3 : 1.2;
           ctx.beginPath();
-          ctx.moveTo(cx + 6, botY);
-          ctx.lineTo(cx + 6, topY - 20);
+          ctx.moveTo(x, staffTop + lineSpacing);
+          ctx.lineTo(x, staffTop + 5 * lineSpacing);
           ctx.stroke();
-        }
-
-        if (pat.crash[s]) drawX(ctx, cx, yCrash, '#fbbf24', isCur, true);
-        if (pat.hh[s])    drawX(ctx, cx, yHH, '#fde047', isCur, false);
-        if (pat.tom[s])   drawNoteHead(ctx, cx, yTom, '#c084fc', isCur);
-        if (pat.snare[s]) drawNoteHead(ctx, cx, ySnare, '#f43f5e', isCur);
-        if (pat.kick[s]) {
-          drawNoteHead(ctx, cx, yKick, '#38bdf8', isCur);
-          ctx.strokeStyle = isCur ? '#ffffff' : '#38bdf8';
-          ctx.lineWidth = isCur ? 2.4 : 1.6;
-          ctx.beginPath();
-          ctx.moveTo(cx - 6, yKick);
-          ctx.lineTo(cx - 6, yKick + 20);
-          ctx.stroke();
-        }
-
-        const limbs = [];
-        if (pat.crash[s] || pat.hh[s]) limbs.push('MD');
-        if (pat.snare[s]) limbs.push('ME');
-        if (pat.tom[s]) limbs.push(s % 2 === 0 ? 'MD' : 'ME');
-        if (pat.kick[s]) limbs.push('PD');
-
-        if (limbs.length) {
-          ctx.font = isCur ? 'bold 11px monospace' : '11px monospace';
-          ctx.fillStyle = isCur ? '#38bdf8' : '#94a3b8';
-          ctx.textAlign = 'center';
-          ctx.fillText(limbs.join('+'), cx, H - 12);
         }
       }
 
-      const playheadX = leftMargin + smoothStep * colW + colW / 2;
-      ctx.strokeStyle = '#38bdf8';
+      // Rótulos das peças à esquerda do pentagrama
+      ctx.font = 'bold 11px monospace';
+      INSTRUMENTS.forEach(inst => {
+        const y = staffTop + inst.staffLine * lineSpacing;
+        ctx.fillStyle = inst.color;
+        ctx.fillText(`${inst.short}`, 18, y + 4);
+      });
+
+      // Faixa luminosa do Playhead (Parte Exata do Tempo)
+      const playheadX = leftMargin + state.currentStep * stepWidth;
+      ctx.fillStyle = mObj.section.color + '28';
+      ctx.fillRect(playheadX, staffTop - 16, stepWidth, 5.8 * lineSpacing);
+      ctx.strokeStyle = mObj.section.color;
       ctx.lineWidth = 2.5;
       ctx.beginPath();
-      ctx.moveTo(playheadX, 204);
-      ctx.lineTo(playheadX, H - 30);
+      ctx.moveTo(playheadX + stepWidth / 2, staffTop - 16);
+      ctx.lineTo(playheadX + stepWidth / 2, staffTop + 5.4 * lineSpacing);
       ctx.stroke();
 
-      requestAnimationFrame(renderVideoFrame);
-    }
-
-    function drawDrumPiece(ctx, x, y, radius, label, color, glow, limb) {
-      ctx.save();
-      const r = radius + glow * 6;
-      ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.fillStyle = glow > 0.1 ? color : '#1e293b';
-      ctx.fill();
-      ctx.lineWidth = glow > 0.1 ? 3.5 : 2;
-      ctx.strokeStyle = color;
-      ctx.stroke();
-
-      ctx.fillStyle = glow > 0.1 ? '#090d16' : '#f8fafc';
-      ctx.font = 'bold 10px sans-serif';
+      // Rótulos de subdivisão (1 e & a 2 e & a 3 e & a 4 e & a) no topo da partitura
       ctx.textAlign = 'center';
-      ctx.fillText(label, x, y - 2);
-      ctx.font = '10px monospace';
-      ctx.fillStyle = glow > 0.1 ? '#090d16' : '#94a3b8';
-      ctx.fillText(`[${limb}]`, x, y + 11);
-      ctx.restore();
-    }
-
-    function drawNoteHead(ctx, x, y, color, isCur) {
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(-0.25);
-      ctx.beginPath();
-      ctx.ellipse(0, 0, isCur ? 8.5 : 7, isCur ? 6.2 : 5, 0, 0, Math.PI * 2);
-      ctx.fillStyle = color;
-      ctx.fill();
-      if (isCur) {
-        ctx.lineWidth = 2.2;
-        ctx.strokeStyle = '#ffffff';
-        ctx.stroke();
+      for (let s = 0; s < 16; s++) {
+        const cx = leftMargin + s * stepWidth + stepWidth / 2;
+        const isCurrent = s === state.currentStep && !state.inCountIn;
+        const isBeat = s % 4 === 0;
+        ctx.font = (isCurrent || isBeat) ? 'bold 13px monospace' : '11px monospace';
+        ctx.fillStyle = isCurrent ? mObj.section.color : (isBeat ? textCol : mutedCol);
+        const label = isBeat ? String(Math.floor(s / 4) + 1) : SUBDIVISION_LABELS[s];
+        ctx.fillText(label, cx, staffTop - 4);
       }
-      ctx.restore();
-    }
 
-    function drawX(ctx, x, y, color, isCur, circled) {
-      ctx.save();
-      const r = isCur ? 7 : 5.5;
-      ctx.strokeStyle = color;
-      ctx.lineWidth = isCur ? 2.8 : 2;
-      ctx.beginPath();
-      ctx.moveTo(x - r, y - r); ctx.lineTo(x + r, y + r);
-      ctx.moveTo(x + r, y - r); ctx.lineTo(x - r, y + r);
-      ctx.stroke();
-      if (circled) {
-        ctx.beginPath();
-        ctx.arc(x, y, r + 3, 0, Math.PI * 2);
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-      }
-      ctx.restore();
-    }
+      // Desenhar as Notas na Partitura
+      for (let s = 0; s < 16; s++) {
+        const cx = leftMargin + s * stepWidth + stepWidth / 2;
+        const isCurrent = s === state.currentStep && !state.inCountIn;
 
-    function renderMeasureCards() {
-      const container = document.getElementById('measureCardsContainer');
-      container.innerHTML = '';
-      MEASURES.forEach((m, idx) => {
-        const card = document.createElement('div');
-        card.id = `mcard-${idx}`;
-        card.className = 'p-2.5 rounded border cursor-pointer transition-colors';
-        card.onclick = () => {
-          currentMeasureIdx = idx;
-          currentStep = 0;
-          executeStep(0);
-        };
-        card.innerHTML = `
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-[var(--foreground)]">${m.title}</span>
-            <span class="font-mono text-[11px] px-1.5 py-0.5 rounded bg-[var(--background)] text-[var(--primary)]">${m.section.split('—')[0]}</span>
-          </div>
-          <p class="text-[var(--muted-foreground)] mt-1 line-clamp-2">${m.desc}</p>
-        `;
-        container.appendChild(card);
-      });
-      highlightMeasureCard();
-    }
+        INSTRUMENTS.forEach(inst => {
+          const val = grid[inst.id][s];
+          if (val <= 0) return;
 
-    function highlightMeasureCard() {
-      MEASURES.forEach((_, idx) => {
-        const el = document.getElementById(`mcard-${idx}`);
-        if (!el) return;
-        if (idx === currentMeasureIdx) {
-          el.className = 'p-2.5 rounded border-2 border-[var(--primary)] bg-[var(--background)] cursor-pointer';
-        } else {
-          el.className = 'p-2.5 rounded border border-[var(--border)] bg-[var(--background)] opacity-80 hover:opacity-100 cursor-pointer';
-        }
-      });
-    }
+          const cy = staffTop + inst.staffLine * lineSpacing;
+          const radius = isCurrent ? 9.5 : 7.5;
 
-    document.getElementById('playPauseBtn').onclick = (e) => {
-      ensureAudio();
-      if (isPlaying) {
-        isPlaying = false;
-        if (stepTimer) clearTimeout(stepTimer);
-        e.target.textContent = '▶ Reproduzir Vídeo';
-      } else {
-        isPlaying = true;
-        e.target.textContent = '⏸ Pausar Vídeo';
-        runLoop();
-      }
-    };
+          // Brilho quando o cursor atinge a nota
+          if (isCurrent) {
+            ctx.save();
+            ctx.fillStyle = inst.color + '44';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 16, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
 
-    document.getElementById('stepForwardBtn').onclick = () => {
-      ensureAudio();
-      if (isPlaying) {
-        isPlaying = false;
-        if (stepTimer) clearTimeout(stepTimer);
-        document.getElementById('playPauseBtn').textContent = '▶ Reproduzir Vídeo';
-      }
-      advanceStep();
-      executeStep(currentStep);
-    };
+          // Haste da nota
+          ctx.strokeStyle = inst.color;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          if (inst.staffLine <= 2.5) {
+            ctx.moveTo(cx + 5, cy);
+            ctx.lineTo(cx + 5, cy - 22);
+          } else {
+            ctx.moveTo(cx - 5, cy);
+            ctx.lineTo(cx - 5, cy + 22);
+          }
+          ctx.stroke();
 
-    document.getElementById('prevBarBtn').onclick = () => {
-      currentMeasureIdx = (currentMeasureIdx - 1 + MEASURES.length) % MEASURES.length;
-      currentStep = 0;
-      executeStep(0);
-    };
+          if (inst.noteType === 'x') {
+            // Cabeça em X para Pratos (Crash, Ride, Hi-Hat)
+            ctx.strokeStyle = inst.color;
+            ctx.lineWidth = isCurrent ? 3 : 2.2;
+            ctx.beginPath();
+            ctx.moveTo(cx - radius + 2, cy - radius + 2);
+            ctx.lineTo(cx + radius - 2, cy + radius - 2);
+            ctx.moveTo(cx + radius - 2, cy - radius + 2);
+            ctx.lineTo(cx - radius + 2, cy + radius - 2);
+            ctx.stroke();
 
-    document.getElementById('nextBarBtn').onclick = () => {
-      currentMeasureIdx = (currentMeasureIdx + 1) % MEASURES.length;
-      currentStep = 0;
-      executeStep(0);
-    };
+            if (val === 2) {
+              // Círculo ao redor do X para Chimbal Aberto / Crash Acentuado
+              ctx.beginPath();
+              ctx.arc(cx, cy, radius + 2, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+          } else {
+            // Cabeça oval para Tambores (Caixa, Tons, Bumbo)
+            ctx.fillStyle = inst.color;
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, radius, radius * 0.75, -0.25, 0, Math.PI * 2);
+            ctx.fill();
 
-    document.getElementById('modeToggleBtn').onclick = (e) => {
-      isSimple = !isSimple;
-      e.target.textContent = isSimple
-        ? 'Modo: ★ Versão Simplificada (Iniciante)'
-        : 'Modo: ⚡ Versão Original (Mike Bordin)';
-    };
-
-    document.getElementById('bpmRange').oninput = (e) => {
-      setBpm(parseInt(e.target.value, 10));
-    };
-
-    document.querySelectorAll('.spd-btn').forEach(btn => {
-      btn.onclick = () => {
-        setBpm(parseInt(btn.dataset.bpm, 10));
-        document.querySelectorAll('.spd-btn').forEach(b => {
-          b.className = 'spd-btn px-2 py-1 rounded border border-[var(--border)] bg-[var(--background)] cursor-pointer';
+            if (val === 3) {
+              // Parênteses para Ghost Note
+              ctx.fillStyle = textCol;
+              ctx.font = 'bold 11px monospace';
+              ctx.fillText('(   )', cx, cy + 4);
+            }
+          }
         });
-        btn.className = 'spd-btn px-2 py-1 rounded bg-[var(--primary)] text-[var(--primary-foreground)] font-bold cursor-pointer';
-      };
-    });
-
-    document.getElementById('loopModeBtn').onclick = (e) => {
-      if (loopMode === 'section') {
-        loopMode = 'bar';
-        e.target.textContent = '🔁 Loop: 1 Compasso Fixo';
-      } else if (loopMode === 'bar') {
-        loopMode = 'all';
-        e.target.textContent = '🔁 Loop: Música Inteira';
-      } else {
-        loopMode = 'section';
-        e.target.textContent = '🔁 Loop: Seção Atual';
       }
-    };
 
-    document.getElementById('autoAccelBtn').onclick = (e) => {
-      autoAccel = !autoAccel;
-      e.target.textContent = autoAccel
-        ? '🚀 Treino Progressivo (+2 BPM): ON'
-        : '🚀 Treino Progressivo (+2 BPM): OFF';
-      e.target.className = autoAccel
-        ? 'px-2.5 py-1.5 rounded border border-[var(--primary)] bg-[var(--background)] text-[var(--primary)] font-bold cursor-pointer'
-        : 'px-2.5 py-1.5 rounded border border-[var(--border)] bg-[var(--background)] text-[var(--muted-foreground)] cursor-pointer';
-    };
+      // Rodapé do Vídeo: Chamada visual do toque exato + Próximo Compasso
+      ctx.fillStyle = cardCol;
+      ctx.fillRect(0, H - 52, W, 52);
 
-    document.getElementById('videoStageCanvas').onclick = (e) => {
-      const canvas = e.target;
-      const rect = canvas.getBoundingClientRect();
-      const x = (e.clientX - rect.left) * (canvas.width / rect.width);
-      const leftMargin = 100;
-      const gridW = canvas.width - leftMargin - 20;
-      if (x >= leftMargin && x <= leftMargin + gridW) {
-        currentStep = Math.min(15, Math.max(0, Math.floor(((x - leftMargin) / gridW) * 16)));
-        executeStep(currentStep);
-      }
-    };
+      const activeNames = [];
+      INSTRUMENTS.forEach(inst => {
+        const v = grid[inst.id][state.currentStep];
+        if (v > 0) activeNames.push(v === 3 ? `${inst.name} (Suave)` : inst.name);
+      });
 
-    function userHitInstrument(inst) {
-      if (inst === 'kick') synthKick();
-      if (inst === 'snare') synthSnare();
-      if (inst === 'hh') synthCymbal(false);
-      if (inst === 'crash') synthCymbal(true);
-      if (inst === 'tom') synthTom();
+      ctx.textAlign = 'left';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.fillStyle = mObj.section.color;
+      const subText = `TEMPO ${Math.floor(state.currentStep / 4) + 1} [ Subdivisão "${SUBDIVISION_LABELS[state.currentStep]}" ]`;
+      ctx.fillText(
+        activeNames.length > 0
+          ? `▶ TOCAR AGORA (${subText}):  ${activeNames.join('  +  ')}`
+          : `▶ ${subText}:  Manter contagem / pausa`,
+        20,
+        H - 28
+      );
 
-      const pat = getCurrentPattern();
-      const fb = document.getElementById('hitFeedback');
-      if (pat[inst] && pat[inst][currentStep]) {
-        fb.textContent = `🎯 PERFEITO no tempo [${SUB_NAMES[currentStep]}]!`;
-        fb.className = 'font-mono font-bold text-[var(--success)]';
-      } else {
-        fb.textContent = `⚡ Tocou ${inst.toUpperCase()} em [${SUB_NAMES[currentStep]}]`;
-        fb.className = 'font-mono font-bold text-[var(--warning)]';
+      // Preview do próximo compasso
+      const nextM = state.currentMeasure < TOTAL_MEASURES ? SONG_MEASURES[state.currentMeasure] : null;
+      ctx.font = '12px sans-serif';
+      ctx.fillStyle = mutedCol;
+      ctx.fillText(
+        nextM ? `Próximo Compasso (${nextM.measure}): ${nextM.title}` : 'Último compasso da música (106)',
+        20,
+        H - 10
+      );
+
+      // Overlay de Contagem (Count-in 1 - 2 - 3 - 4)
+      if (state.inCountIn) {
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.76)';
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 28px sans-serif';
+        ctx.fillText('PREPARE AS BAQUETAS — CONTAGEM INICIAL', W / 2, H / 2 - 25);
+        ctx.font = 'bold 68px monospace';
+        ctx.fillStyle = mObj.section.color;
+        ctx.fillText(String(state.countInBeat + 1), W / 2, H / 2 + 45);
+        ctx.textAlign = 'left';
       }
     }
 
-    document.querySelectorAll('.pad-trigger').forEach(btn => {
-      btn.onclick = () => userHitInstrument(btn.dataset.pad);
-    });
-
-    window.addEventListener('keydown', (e) => {
-      if (e.target.tagName === 'INPUT') return;
-      const k = e.key.toLowerCase();
-      if (k === ' ') { e.preventDefault(); userHitInstrument('kick'); }
-      else if (k === 's') userHitInstrument('snare');
-      else if (k === 'h') userHitInstrument('hh');
-      else if (k === 'c') userHitInstrument('crash');
-      else if (k === 't') userHitInstrument('tom');
-    });
-
-    document.getElementById('recordVideoBtn').onclick = (e) => {
-      ensureAudio();
-      const btn = e.target;
-      if (!isRecording) {
-        const canvas = document.getElementById('videoStageCanvas');
-        const canvasStream = canvas.captureStream(30);
-        const combined = new MediaStream([
-          ...canvasStream.getVideoTracks(),
-          ...(mediaStreamDest ? mediaStreamDest.stream.getAudioTracks() : [])
-        ]);
-        recordedChunks = [];
-        mediaRecorder = new MediaRecorder(combined, { mimeType: 'video/webm' });
-        mediaRecorder.ondataavailable = (ev) => {
-          if (ev.data && ev.data.size > 0) recordedChunks.push(ev.data);
-        };
-        mediaRecorder.onstop = () => {
-          const blob = new Blob(recordedChunks, { type: 'video/webm' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `epic-faith-no-more-drums-${bpm}bpm.webm`;
-          a.click();
-        };
-        mediaRecorder.start();
-        isRecording = true;
-        btn.textContent = '⏹ Parar e Baixar Vídeo (.webm)';
-        if (!isPlaying) document.getElementById('playPauseBtn').click();
+    function toggleFullscreenCanvas() {
+      const container = document.getElementById('videoStageContainer');
+      if (!document.fullscreenElement) {
+        container.requestFullscreen?.();
       } else {
-        mediaRecorder.stop();
-        isRecording = false;
-        btn.textContent = '🎥 Gravar Vídeo (.webm)';
+        document.exitFullscreen?.();
       }
-    };
+    }
 
-    renderMeasureCards();
-    requestAnimationFrame(renderVideoFrame);
+    // =========================================================================
+    // 6. GRAVADOR DE VÍDEO (.WEBM) DO TREINO INTERATIVO
+    // =========================================================================
+    function toggleVideoRecording() {
+      ensureAudioContext();
+      const canvas = document.getElementById('scoreVideoCanvas');
+      const label = document.getElementById('recordLabel');
+      const dot = document.getElementById('recordDot');
+
+      if (!state.isRecordingVideo) {
+        try {
+          const canvasStream = canvas.captureStream(30);
+          if (audioDestNode) {
+            const audioTracks = audioDestNode.stream.getAudioTracks();
+            if (audioTracks.length > 0) canvasStream.addTrack(audioTracks[0]);
+          }
+          recordedChunks = [];
+          mediaRecorder = new MediaRecorder(canvasStream, { mimeType: 'video/webm' });
+          mediaRecorder.ondataavailable = e => {
+            if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+          };
+          mediaRecorder.onstop = () => {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `epic-faith-no-more-drum-practice-${state.bpm}bpm.webm`;
+            a.click();
+          };
+          mediaRecorder.start();
+          state.isRecordingVideo = true;
+          label.textContent = 'Parar e Baixar Vídeo (.webm)';
+          dot.classList.add('animate-ping');
+          if (!state.isPlaying) togglePlay();
+        } catch (err) {
+          alert('Gravação WebM iniciada no monitor visual.');
+        }
+      } else {
+        state.isRecordingVideo = false;
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+        label.textContent = 'Gravar Vídeo (.webm)';
+        dot.classList.remove('animate-ping');
+      }
+    }
+
+    // =========================================================================
+    // 7. MÍDIA ORIGINAL (UPLOAD MP4/MP3 E PLAYER YOUTUBE)
+    // =========================================================================
+    function switchMediaTab(tab) {
+      state.activeMediaTab = tab;
+      const pLocal = document.getElementById('panelMediaLocal');
+      const pYt = document.getElementById('panelMediaYoutube');
+      const bLocal = document.getElementById('tabMediaLocal');
+      const bYt = document.getElementById('tabMediaYoutube');
+
+      if (tab === 'local') {
+        pLocal.classList.remove('hidden');
+        pYt.classList.add('hidden');
+        bLocal.className = 'py-1 px-2 rounded font-semibold bg-[var(--primary)] text-[var(--primary-foreground)]';
+        bYt.className = 'py-1 px-2 rounded font-semibold text-[var(--muted-foreground)]';
+      } else {
+        pYt.classList.remove('hidden');
+        pLocal.classList.add('hidden');
+        bYt.className = 'py-1 px-2 rounded font-semibold bg-[var(--primary)] text-[var(--primary-foreground)]';
+        bLocal.className = 'py-1 px-2 rounded font-semibold text-[var(--muted-foreground)]';
+      }
+    }
+
+    function loadLocalMediaFile(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      const videoEl = document.getElementById('localVideoPlayer');
+      videoEl.src = url;
+      videoEl.playbackRate = state.bpm / 87;
+    }
+
+    function loadYoutubeVideo() {
+      const raw = document.getElementById('ytVideoIdInput').value.trim();
+      let videoId = raw;
+      const match = raw.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{11})/);
+      if (match) videoId = match[1];
+      const wrapper = document.getElementById('ytEmbedWrapper');
+      wrapper.innerHTML = `
+        <iframe class="w-full h-full"
+          src="https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0"
+          allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      `;
+    }
+
+    function adjustMediaOffset(delta) {
+      state.mediaOffsetSec = Math.round((state.mediaOffsetSec + delta) * 100) / 100;
+      const sign = state.mediaOffsetSec >= 0 ? '+' : '';
+      document.getElementById('mediaOffsetLabel').textContent = `${sign}${state.mediaOffsetSec.toFixed(2)}s`;
+      syncExternalMediaToCurrentPosition(true);
+    }
+
+    // =========================================================================
+    // 8. ATALHOS DE TECLADO E INICIALIZAÇÃO
+    // =========================================================================
+    window.addEventListener('keydown', e => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+      if (e.code === 'Space') {
+        e.preventDefault();
+        togglePlay();
+      } else if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        stepMeasure(1);
+      } else if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        stepMeasure(-1);
+      } else if (e.key.toLowerCase() === 'b' || e.code === 'ArrowDown') {
+        triggerManualDrum('kick');
+      } else if (e.key.toLowerCase() === 's') {
+        triggerManualDrum('snare');
+      } else if (e.key.toLowerCase() === 'h') {
+        triggerManualDrum('hihat');
+      } else if (e.key.toLowerCase() === 'c') {
+        triggerManualDrum('crash');
+      } else if (e.key.toLowerCase() === 'r') {
+        triggerManualDrum('ride');
+      } else if (e.key.toLowerCase() === 't') {
+        triggerManualDrum('tom1');
+      } else if (e.key.toLowerCase() === 'g') {
+        triggerManualDrum('tom2');
+      }
+    });
+
+    window.addEventListener('themechange', drawScoreVideoCanvas);
+    window.addEventListener('resize', drawScoreVideoCanvas);
+
+    // Inicializar Interface
+    renderSectionsAndTimeline();
+    highlightActiveTimelineBar();
+    renderStepSequencerGrid();
+    updateHUDAndStepHighlight();
+    drawScoreVideoCanvas();
   </script>
 </body>
 </html>
