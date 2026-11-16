@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Epic (Faith No More) — Drum Video Trainer & Partitura Interativa</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    :root {
+      --background: #0b0f19;
+      --card: #111827;
+      --border: #1e293b;
+      --foreground: #f8fafc;
+      --muted-foreground: #94a3b8;
+      --primary: #38bdf8;
+      --primary-foreground: #090d16;
+      --link: #60a5fa;
+      --success: #4ade80;
+      --warning: #facc15;
+      --error: #f87171;
+    }
+  </style>
+</head>
+<body class="bg-[var(--background)] text-[var(--foreground)] antialiased p-4 m-0 select-none">
+  <div class="max-w-5xl mx-auto space-y-4 text-xs">
+
+    <!-- Header -->
+    <div class="bg-[var(--card)] border border-[var(--border)] rounded-lg p-3.5 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 rounded bg-[var(--primary)] text-[var(--primary-foreground)] font-bold">DRUM VIDEO TRAINER</span>
+          <h1 class="text-base font-bold text-[var(--foreground)]">Faith No More — "Epic" (Mike Bordin Groove)</h1>
+        </div>
+        <p class="text-[var(--muted-foreground)] mt-1">
+          Estudo passo a passo por compasso • Partitura interativa com subdivisão exata (<span class="font-mono">1 e &amp; a</span>) • Vídeo 60fps + Gravador de Treino
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="modeToggleBtn" class="px-3 py-1.5 rounded border border-[var(--border)] bg-[var(--background)] font-semibold text-[var(--link)] cursor-pointer hover:opacity-85">
+          Modo: ★ Versão Simplificada (Iniciante)
+        </button>
+        <button id="recordVideoBtn" class="px-3 py-1.5 rounded border border-[var(--border)] bg-[var(--background)] font-semibold text-[var(--error)] cursor-pointer hover:opacity-85" title="Gravar o player interativo com áudio em um arquivo de vídeo .webm">
+          🎥 Gravar Vídeo (.webm)
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Video Player Stage -->
+    <div class="bg-[var(--card)] border border-[var(--border)] rounded-lg overflow-hidden">
+      <div class="px-3.5 py-2 border-b border-[var(--border)] flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span id="videoSectionLabel" class="font-bold text-sm text-[var(--foreground)]">1. Intro — Impacto &amp; Groove</span>
+          <span class="text-[var(--muted-foreground)]">•</span>
+          <span id="videoBarLabel" class="font-mono px-2 py-0.5 rounded bg-[var(--background)] border border-[var(--border)] text-[var(--primary)]">Compasso 1 / 10</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-1.5">
+            <span class="text-[var(--muted-foreground)]">Subdivisão Exata:</span>
+            <span id="hudSubdivision" class="font-mono font-bold text-sm px-2 py-0.5 rounded bg-[var(--background)] border border-[var(--border)] text-[var(--warning)]">1</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-[var(--muted-foreground)]">Toque Agora:</span>
+            <span id="hudAction" class="font-bold text-sm px-2 py-0.5 rounded bg-[var(--background)] border border-[var(--border)] text-[var(--success)]">Crash (MD) + Bumbo (PD)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="relative bg-slate-950">
+        <canvas id="videoStageCanvas" width="960" height="430" class="w-full block cursor-pointer" title="Clique em qualquer tempo da partitura para posicionar a agulha e ouvir o tempo exato"></canvas>
+      </div>
+
+      <div class="p-3 border-t border-[var(--border)] flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-1.5">
+          <button id="prevBarBtn" class="px-2.5 py-1.5 rounded border border-[var(--border)] bg-[var(--background)] hover:opacity-80 cursor-pointer" title="Compasso Anterior">⏮</button>
+          <button id="playPauseBtn" class="px-4 py-1.5 rounded bg-[var(--primary)] text-[var(--primary-foreground)] font-bold hover:opacity-90 cursor-pointer">
+            ▶ Reproduzir Vídeo
+          </button>
+          <button id="stepForwardBtn" class="px-2.5 py-1.5 rounded border border-[var(--border)] bg-[var(--background)] hover:opacity-80 cursor-pointer" title="Avançar 1 Semicolcheia (Passo a Passo)">⏯ +1 Subdivisão</button>
+          <button id="nextBarBtn" class="px-2.5 py-1.5 rounded border border-[var(--border)] bg-[var(--background)] hover:opacity-80 cursor-pointer" title="Próximo Compasso">⏭</button>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-[var(--muted-foreground)]">Velocidade:</span>
+          <button data-bpm="43" class="spd-btn px-2 py-1 rounded border border-[var(--border)] bg-[var(--background)] cursor-pointer">50%</button>
+          <button data-bpm="56" class="spd-btn px-2 py-1 rounded border border-[var(--border)] bg-[var(--background)] cursor-pointer">65%</button>
+          <button data-bpm="69" class="spd-btn px-2 py-1 rounded border border-[var(--border)] bg-[var(--background)] cursor-pointer">80%</button>
+          <button data-bpm="86" class="spd-btn px-2 py-1 rounded bg-[var(--primary)] text-[var(--primary-foreground)] font-bold cursor-pointer">100% (86 BPM)</button>
+          <button data-bpm="99" class="spd-btn px-2 py-1 rounded border border-[var(--border)] bg-[var(--background)] cursor-pointer">115%</button>
+          <input id="bpmRange" type="range" min="40" max="125" value="86" class="w-24 accent-[var(--primary)] cursor-pointer" />
+          <span id="bpmValue" class="font-mono font-bold tabular-nums w-16">86 BPM</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="loopModeBtn" class="px-2.5 py-1.5 rounded border border-[var(--border)] bg-[var(--background)] font-semibold cursor-pointer">
+            🔁 Loop: Seção Atual
+          </button>
+          <button id="autoAccelBtn" class="px-2.5 py-1.5 rounded border border-[var(--border)] bg-[var(--background)] text-[var(--muted-foreground)] cursor-pointer">
+            🚀 Treino Progressivo (+2 BPM): OFF
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section & Measure Breakdown Grid + Mixer -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="md:col-span-2 bg-[var(--card)] border border-[var(--border)] rounded-lg p-3.5 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <h2 class="font-bold text-sm">Estrutura da Música por Compasso (Clique para ir direto)</h2>
+          <span class="text-[var(--muted-foreground)]">10 Compassos Essenciais</span>
+        </div>
+        <div id="measureCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+      </div>
+
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-lg p-3.5 space-y-3">
+        <h2 class="font-bold text-sm">Mixer de Estudo &amp; Prática no Teclado</h2>
+        <div class="space-y-1.5">
+          <label class="flex items-center justify-between p-1.5 rounded bg-[var(--background)] border border-[var(--border)] cursor-pointer">
+            <span>⏱ Metrônomo (Com subdivisão)</span>
+            <input type="checkbox" id="chkMetro" checked class="accent-[var(--primary)]" />
+          </label>
+          <label class="flex items-center justify-between p-1.5 rounded bg-[var(--background)] border border-[var(--border)] cursor-pointer">
+            <span>🎸 Baixo &amp; Synth Riff ("Epic")</span>
+            <input type="checkbox" id="chkBass" checked class="accent-[var(--primary)]" />
+          </label>
+          <label class="flex items-center justify-between p-1.5 rounded bg-[var(--background)] border border-[var(--border)] cursor-pointer">
+            <span>🥁 Guia de Bateria (Desmarque p/ Karaokê)</span>
+            <input type="checkbox" id="chkDrums" checked class="accent-[var(--primary)]" />
+          </label>
+        </div>
+
+        <div class="border-t border-[var(--border)] pt-2.5 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold">Treinar Junto (Teclado / Clique):</span>
+            <span id="hitFeedback" class="font-mono font-bold text-[var(--primary)]">Toque nas teclas!</span>
+          </div>
+          <div class="grid grid-cols-3 gap-1.5">
+            <button data-pad="crash" class="pad-trigger p-2 rounded border border-[var(--border)] bg-[var(--background)] hover:border-amber-400 text-center cursor-pointer">
+              <div class="font-bold text-amber-400">Crash</div>
+              <div class="text-[var(--muted-foreground)] font-mono">[Tecla C]</div>
+            </button>
+            <button data-pad="hh" class="pad-trigger p-2 rounded border border-[var(--border)] bg-[var(--background)] hover:border-yellow-300 text-center cursor-pointer">
+              <div class="font-bold text-yellow-300">Chimbal</div>
+              <div class="text-[var(--muted-foreground)] font-mono">[Tecla H]</div>
+            </button>
+            <button data-pad="snare" class="pad-trigger p-2 rounded border border-[var(--border)] bg-[var(--background)] hover:border-rose-500 text-center cursor-pointer">
+              <div class="font-bold text-rose-400">Caixa</div>
+              <div class="text-[var(--muted-foreground)] font-mono">[Tecla S]</div>
+            </button>
+            <button data-pad="tom" class="pad-trigger p-2 rounded border border-[var(--border)] bg-[var(--background)] hover:border-purple-400 text-center cursor-pointer">
+              <div class="font-bold text-purple-400">Tons</div>
+              <div class="text-[var(--muted-foreground)] font-mono">[Tecla T]</div>
+            </button>
+            <button data-pad="kick" class="pad-trigger col-span-2 p-2 rounded border border-[var(--border)] bg-[var(--background)] hover:border-sky-400 text-center cursor-pointer">
+              <div class="font-bold text-sky-400">Bumbo (Pé Direito)</div>
+              <div class="text-[var(--muted-foreground)] font-mono">[Barra de Espaço]</div>
+            </button>
+          </div>
+          <p id="measureExplain" class="text-[var(--muted-foreground)] leading-relaxed pt-1">
+            Selecione um compasso ou aperte Reproduzir para ver a explicação detalhada de coordenação motora.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const SUB_NAMES = ['1', 'e', '&', 'a', '2', 'e', '&', 'a', '3', 'e', '&', 'a', '4', 'e', '&', 'a'];
+
+    const MEASURES = [
+      {
+        id: 1,
+        section: "1. Intro — Impacto & Groove",
+        title: "Compasso 1: Ataque Inicial",
+        desc: "Ataque o Crash + Bumbo no tempo 1. Mantenha o Chimbal nas colcheias (& 2 & 3 & 4 &) e Caixa firme no 2 e 4.",
+        simple: {
+          crash: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hh:    [0,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],
+          bass:  [82.4,0,0,0, 0,0,82.4,0, 98.0,0,0,0, 110.0,0,0,0]
+        },
+        orig: {
+          crash: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hh:    [0,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [1,0,0,0, 0,1,1,0, 0,0,1,0, 0,0,1,0],
+          bass:  [82.4,0,0,0, 0,82.4,82.4,0, 0,0,98.0,0, 110.0,0,98.0,0]
+        }
+      },
+      {
+        id: 2,
+        section: "1. Intro — Impacto & Groove",
+        title: "Compasso 2: Resposta do Riff",
+        desc: "Bumbo no 1, no '&' do 2, no 3 e no '&' do 4 preparando a repetição do riff pesado de guitarra.",
+        simple: {
+          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hh:    [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,1,0],
+          bass:  [82.4,0,0,0, 0,0,82.4,0, 123.5,0,0,0, 110.0,0,98.0,0]
+        },
+        orig: {
+          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hh:    [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+          snare: [0,0,0,0, 1,0,0,1, 0,0,0,0, 1,0,0,0],
+          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [1,0,0,0, 0,1,1,0, 1,0,1,0, 0,0,1,0],
+          bass:  [82.4,0,0,0, 0,82.4,82.4,0, 123.5,0,110.0,0, 98.0,0,82.4,0]
+        }
+      },
+      {
+        id: 3,
+        section: "2. Verso — Levada Rap / Funk",
+        title: "Compasso 3: Groove Seco (Verso A)",
+        desc: "Chimbal fechado bem preciso. O bumbo no '&' do 2 seguido pelo 3 dá o balanço clássico do Mike Bordin.",
+        simple: {
+          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hh:    [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],
+          bass:  [82.4,0,82.4,0, 0,0,82.4,0, 82.4,0,0,0, 98.0,0,0,0]
+        },
+        orig: {
+          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hh:    [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+          snare: [0,0,0,0, 1,0,0,0, 0,1,0,0, 1,0,0,0],
+          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [1,0,1,0, 0,0,1,1, 1,0,0,0, 0,0,1,0],
+          bass:  [82.4,0,82.4,0, 0,0,82.4,82.4, 82.4,0,0,0, 98.0,0,82.4,0]
+        }
+      },
+      {
+        id: 4,
+        section: "2. Verso — Levada Rap / Funk",
+        title: "Compasso 4: Caixa Dupla no Fim",
+        desc: "No tempo 4, toque Caixa no '4' e também no '&' do 4 para criar o impulso para o próximo compasso.",
+        simple: {
+          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hh:    [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,1,0],
+          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [1,0,0,0, 0,0,1,0, 1,0,1,0, 0,0,0,0],
+          bass:  [82.4,0,0,0, 0,0,98.0,0, 110.0,0,98.0,0, 82.4,0,0,0]
+        },
+        orig: {
+          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hh:    [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,0,0],
+          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,1,1],
+          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [1,0,0,1, 0,0,1,0, 1,0,1,0, 0,0,0,0],
+          bass:  [82.4,0,0,82.4, 0,0,98.0,0, 110.0,0,98.0,0, 82.4,0,0,0]
+        }
+      },
+      {
+        id: 5,
+        section: "3. Pré-Refrão — \"What is it? It's it!\"",
+        title: "Compasso 5: Acentos no Crash (1 e 3)",
+        desc: "Acentue os tempos 1 e 3 com Crash + Bumbo e responda com a Caixa nos tempos 2 e 4.",
+        simple: {
+          crash: [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],
+          hh:    [0,0,1,0, 1,0,1,0, 0,0,1,0, 1,0,1,0],
+          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [1,0,1,0, 0,0,0,0, 1,0,1,0, 0,0,0,0],
+          bass:  [98.0,0,98.0,0, 0,0,0,0, 110.0,0,110.0,0, 0,0,0,0]
+        },
+        orig: {
+          crash: [1,0,1,0, 0,0,0,0, 1,0,1,0, 0,0,0,0],
+          hh:    [0,0,0,0, 1,0,1,0, 0,0,0,0, 1,0,1,0],
+          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [1,0,1,0, 0,0,1,0, 1,0,1,0, 0,0,1,0],
+          bass:  [98.0,0,98.0,0, 0,0,98.0,0, 110.0,0,110.0,0, 0,0,110.0,0]
+        }
+      },
+      {
+        id: 6,
+        section: "3. Pré-Refrão — \"What is it? It's it!\"",
+        title: "Compasso 6: Virada Clássica p/ Refrão",
+        desc: "Virada (Fill): Tempo 3 na Caixa (3 &) e Tempo 4 descendo nos Tons (4 &) para abrir o Refrão!",
+        simple: {
+          crash: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hh:    [0,0,1,0, 1,0,0,0, 0,0,0,0, 0,0,0,0],
+          snare: [0,0,0,0, 1,0,0,0, 1,0,1,0, 0,0,0,0],
+          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 1,0,1,0],
+          kick:  [1,0,0,0, 0,0,0,0, 1,0,0,0, 1,0,0,0],
+          bass:  [123.5,0,0,0, 123.5,0,0,0, 110.0,0,0,0, 98.0,0,0,0]
+        },
+        orig: {
+          crash: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hh:    [0,0,1,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          snare: [0,0,0,0, 1,0,1,1, 1,1,0,0, 0,0,0,0],
+          tom:   [0,0,0,0, 0,0,0,0, 0,0,1,1, 1,1,1,1],
+          kick:  [1,0,0,0, 0,0,0,0, 1,0,0,0, 1,0,0,0],
+          bass:  [123.5,0,0,0, 123.5,0,0,0, 110.0,0,0,0, 98.0,0,0,0]
+        }
+      },
+      {
+        id: 7,
+        section: "4. Refrão — \"You Want It All!\"",
+        title: "Compasso 7: Refrão Explosivo A",
+        desc: "Bumbo duplo em colcheias nos tempos '1 &' e '3 &', com Caixa pesada no 2 e 4.",
+        simple: {
+          crash: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hh:    [0,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [1,0,1,0, 0,0,0,0, 1,0,1,0, 0,0,0,0],
+          bass:  [130.8,0,130.8,0, 146.8,0,0,0, 98.0,0,98.0,0, 82.4,0,0,0]
+        },
+        orig: {
+          crash: [1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],
+          hh:    [0,0,1,0, 1,0,1,0, 0,0,1,0, 1,0,1,0],
+          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,1],
+          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [1,0,1,0, 0,0,1,0, 1,0,1,0, 0,0,1,0],
+          bass:  [130.8,0,130.8,0, 146.8,0,146.8,0, 98.0,0,98.0,0, 82.4,0,82.4,0]
+        }
+      },
+      {
+        id: 8,
+        section: "4. Refrão — \"You Want It All!\"",
+        title: "Compasso 8: Refrão B + Virada nos Tons",
+        desc: "Mantém a levada até o tempo 3 e finaliza com Caixa no 4 e Tom no '&' do 4.",
+        simple: {
+          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hh:    [1,0,1,0, 1,0,1,0, 1,0,1,0, 0,0,0,0],
+          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,1,0],
+          kick:  [1,0,1,0, 0,0,0,0, 1,0,0,0, 0,0,0,0],
+          bass:  [130.8,0,130.8,0, 146.8,0,0,0, 110.0,0,0,0, 123.5,0,0,0]
+        },
+        orig: {
+          crash: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hh:    [0,0,1,0, 1,0,1,0, 1,0,0,0, 0,0,0,0],
+          snare: [0,0,0,0, 1,0,0,0, 0,0,1,1, 0,0,0,0],
+          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 1,1,1,1],
+          kick:  [1,0,1,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],
+          bass:  [130.8,0,130.8,0, 146.8,0,0,0, 110.0,0,0,0, 123.5,0,0,0]
+        }
+      },
+      {
+        id: 9,
+        section: "5. Solo & Outro — Piano Melódico",
+        title: "Compasso 9: Condução sob o Piano",
+        desc: "Groove mais espaçado e melódico acompanhando o famoso solo de piano final.",
+        simple: {
+          crash: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hh:    [0,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+          snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+          tom:   [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          kick:  [1,0,0,0, 0,0,0,0, 1,0,1,0, 0,0,0,0],
+          bass:  [110.0,0,0,0, 164.8,0,0,0, 146.8,0,130.8,0, 123.5,0,0,0]
+        },
+        orig: {
+          crash: [1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+          hh:    [0,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+          snare: [0,0,0,0, 1,0,0,1, 0,0,0,0, 1,0,0,0],
+          tom:   [0,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,1,0],
+          kick:  [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,0,0],
+          bass:  [110.0,0,0,0, 164.8,0,0,0, 146.8,0,130.8,0, 123.5,0,0,0]
+        }
+      },
+      {
+        id: 10,
+        section: "5. Solo & Outro — Piano Melódico",
+        title: "Compasso 10: Finalização nos Tons",
+        desc: "Fechamento com chamada de Caixa e Tons voltando ao tempo 1.",
+        simple: {
+          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 1,0,0,0],
+          hh:    [1,0,1,0, 1,0,1,0, 0,0,0,0, 0,0,0,0],
+          snare: [0,0,0,0, 1,0,0,0, 1,0,0,0, 0,0,0,0],
+          tom:   [0,0,0,0, 0,0,0,0, 0,0,1,0, 0,0,0,0],
+          kick:  [1,0,0,0, 0,0,1,0, 0,0,0,0, 1,0,0,0],
+          bass:  [110.0,0,0,0, 98.0,0,0,0, 82.4,0,0,0, 82.4,0,0,0]
+        },
+        orig: {
+          crash: [0,0,0,0, 0,0,0,0, 0,0,0,0, 1,0,0,0],
+          hh:    [1,0,1,0, 1,0,0,0, 0,0,0,0, 0,0,0,0],
+          snare: [0,0,0,0, 1,0,1,0, 1,1,0,0, 0,0,0,0],
+          tom:   [0,0,0,0, 0,0,0,0, 0,0,1,1, 0,0,0,0],
+          kick:  [1,0,0,0, 0,0,1,0, 0,0,0,0, 1,0,0,0],
+          bass:  [110.0,0,0,0, 98.0,0,0,0, 82.4,0,0,0, 82.4,0,0,0]
+        }
+      }
+    ];
+
+    let audioCtx = null;
+    let mediaStreamDest = null;
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let isRecording = false;
+
+    let isPlaying = false;
+    let isSimple = true;
+    let bpm = 86;
+    let currentMeasureIdx = 0;
+    let currentStep = 0;
+    let loopMode = 'section';
+    let autoAccel = false;
+    let loopCounter = 0;
+    let stepTimer = null;
+    let lastStepTimeMs = 0;
+
+    const kitGlow = { crash: 0, hh: 0, snare: 0, tom: 0, kick: 0 };
+
+    function ensureAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        mediaStreamDest = audioCtx.createMediaStreamDestination();
+      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function connectOut(node) {
+      node.connect(audioCtx.destination);
+      if (mediaStreamDest) node.connect(mediaStreamDest);
+    }
+
+    function synthKick() {
+      ensureAudio();
+      const t = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(150, t);
+      osc.frequency.exponentialRampToValueAtTime(36, t + 0.13);
+      gain.gain.setValueAtTime(1.0, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
+      osc.connect(gain);
+      connectOut(gain);
+      osc.start(t);
+      osc.stop(t + 0.31);
+      kitGlow.kick = 1.0;
+    }
+
+    function synthSnare() {
+      ensureAudio();
+      const t = audioCtx.currentTime;
+      const bufSize = Math.floor(audioCtx.sampleRate * 0.18);
+      const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buf;
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.setValueAtTime(750, t);
+      const nGain = audioCtx.createGain();
+      nGain.gain.setValueAtTime(0.65, t);
+      nGain.gain.exponentialRampToValueAtTime(0.008, t + 0.17);
+      noise.connect(filter);
+      filter.connect(nGain);
+      connectOut(nGain);
+      noise.start(t);
+
+      const osc = audioCtx.createOscillator();
+      const oGain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(190, t);
+      osc.frequency.exponentialRampToValueAtTime(105, t + 0.08);
+      oGain.gain.setValueAtTime(0.55, t);
+      oGain.gain.exponentialRampToValueAtTime(0.008, t + 0.1);
+      osc.connect(oGain);
+      connectOut(oGain);
+      osc.start(t);
+      osc.stop(t + 0.11);
+      kitGlow.snare = 1.0;
+    }
+
+    function synthCymbal(isCrash) {
+      ensureAudio();
+      const t = audioCtx.currentTime;
+      const dur = isCrash ? 0.6 : 0.065;
+      const bufSize = Math.floor(audioCtx.sampleRate * dur);
+      const buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioCtx.sampleRate * (isCrash ? 0.19 : 0.022)));
+      }
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buf;
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = isCrash ? 'bandpass' : 'highpass';
+      filter.frequency.setValueAtTime(isCrash ? 4100 : 7600, t);
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(isCrash ? 0.5 : 0.34, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      noise.connect(filter);
+      filter.connect(gain);
+      connectOut(gain);
+      noise.start(t);
+      if (isCrash) kitGlow.crash = 1.0;
+      else kitGlow.hh = 1.0;
+    }
+
+    function synthTom(pitch = 135) {
+      ensureAudio();
+      const t = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(pitch, t);
+      osc.frequency.exponentialRampToValueAtTime(58, t + 0.2);
+      gain.gain.setValueAtTime(0.85, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+      osc.connect(gain);
+      connectOut(gain);
+      osc.start(t);
+      osc.stop(t + 0.23);
+      kitGlow.tom = 1.0;
+    }
+
+    function synthClick(isBeat1, isQuarter) {
+      if (!document.getElementById('chkMetro').checked) return;
+      ensureAudio();
+      const t = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(isBeat1 ? 1300 : (isQuarter ? 900 : 620), t);
+      gain.gain.setValueAtTime(isQuarter ? 0.16 : 0.05, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+      osc.connect(gain);
+      connectOut(gain);
+      osc.start(t);
+      osc.stop(t + 0.035);
+    }
+
+    function synthBass(freq) {
+      if (!document.getElementById('chkBass').checked || !freq) return;
+      ensureAudio();
+      const t = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const filter = audioCtx.createBiquadFilter();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(freq, t);
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(680, t);
+      filter.frequency.exponentialRampToValueAtTime(170, t + 0.19);
+      gain.gain.setValueAtTime(0.22, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+      osc.connect(filter);
+      filter.connect(gain);
+      connectOut(gain);
+      osc.start(t);
+      osc.stop(t + 0.23);
+    }
+
+    function getCurrentMeasure() { return MEASURES[currentMeasureIdx]; }
+    function getCurrentPattern() {
+      const m = getCurrentMeasure();
+      return isSimple ? m.simple : m.orig;
+    }
+
+    function describeStepAction(pat, s) {
+      const list = [];
+      if (pat.crash[s]) list.push('Crash [MD]');
+      if (pat.hh[s]) list.push('Chimbal [MD]');
+      if (pat.snare[s]) list.push('Caixa [ME]');
+      if (pat.tom[s]) list.push('Tons [MD/ME]');
+      if (pat.kick[s]) list.push('Bumbo [PD]');
+      return list.length ? list.join(' + ') : '— (Apenas contar o tempo)';
+    }
+
+    function executeStep(s) {
+      lastStepTimeMs = performance.now();
+      const m = getCurrentMeasure();
+      const pat = getCurrentPattern();
+      const drumsOn = document.getElementById('chkDrums').checked;
+
+      synthClick(s === 0, s % 4 === 0);
+      if (drumsOn) {
+        if (pat.crash[s]) synthCymbal(true);
+        if (pat.hh[s]) synthCymbal(false);
+        if (pat.snare[s]) synthSnare();
+        if (pat.tom[s]) synthTom(s % 2 === 0 ? 150 : 112);
+        if (pat.kick[s]) synthKick();
+      }
+      if (pat.bass && pat.bass[s]) synthBass(pat.bass[s]);
+
+      const beatNum = Math.floor(s / 4) + 1;
+      document.getElementById('videoSectionLabel').textContent = m.section;
+      document.getElementById('videoBarLabel').textContent = `Compasso ${m.id} / ${MEASURES.length}`;
+      document.getElementById('hudSubdivision').textContent = `Tempo ${beatNum} [ ${SUB_NAMES[s]} ]`;
+      document.getElementById('hudAction').textContent = describeStepAction(pat, s);
+      document.getElementById('measureExplain').textContent = `📌 ${m.title}: ${m.desc}`;
+      highlightMeasureCard();
+    }
+
+    function advanceStep() {
+      currentStep++;
+      if (currentStep >= 16) {
+        currentStep = 0;
+        loopCounter++;
+        if (autoAccel && loopCounter % 2 === 0 && bpm < 120) {
+          setBpm(Math.min(125, bpm + 2));
+        }
+        if (loopMode === 'bar') {
+          // stay
+        } else if (loopMode === 'section') {
+          const curSec = MEASURES[currentMeasureIdx].section;
+          const nextIdx = (currentMeasureIdx + 1) % MEASURES.length;
+          if (MEASURES[nextIdx].section === curSec) {
+            currentMeasureIdx = nextIdx;
+          } else {
+            currentMeasureIdx = MEASURES.findIndex(x => x.section === curSec);
+          }
+        } else {
+          currentMeasureIdx = (currentMeasureIdx + 1) % MEASURES.length;
+        }
+      }
+    }
+
+    function runLoop() {
+      if (!isPlaying) return;
+      executeStep(currentStep);
+      const stepMs = ((60 / bpm) / 4) * 1000;
+      stepTimer = setTimeout(() => {
+        advanceStep();
+        runLoop();
+      }, stepMs);
+    }
+
+    function setBpm(val) {
+      bpm = val;
+      document.getElementById('bpmRange').value = bpm;
+      document.getElementById('bpmValue').textContent = `${bpm} BPM`;
+    }
+
+    function renderVideoFrame() {
+      const canvas = document.getElementById('videoStageCanvas');
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width;
+      const H = canvas.height;
+
+      ctx.fillStyle = '#090d16';
+      ctx.fillRect(0, 0, W, H);
+
+      const m = getCurrentMeasure();
+      const pat = getCurrentPattern();
+
+      ctx.fillStyle = '#111827';
+      ctx.fillRect(0, 0, W, 172);
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, 172);
+      ctx.lineTo(W, 172);
+      ctx.stroke();
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = 'bold 12px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(`FAITH NO MORE - EPIC (${isSimple ? 'VERSÃO SIMPLIFICADA' : 'VERSÃO ORIGINAL'})  |  ${bpm} BPM`, 18, 22);
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.fillText(`${m.section} — ${m.title}`, 18, 42);
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = '12px sans-serif';
+      ctx.fillText(m.desc, 18, 62);
+
+      const activeBeat = Math.floor(currentStep / 4);
+      for (let b = 0; b < 4; b++) {
+        const bx = 42 + b * 54;
+        const by = 115;
+        const isCurrentBeat = b === activeBeat;
+        ctx.beginPath();
+        ctx.arc(bx, by, isCurrentBeat ? 20 : 16, 0, Math.PI * 2);
+        ctx.fillStyle = isCurrentBeat ? (b === 0 ? '#f59e0b' : '#38bdf8') : '#1e293b';
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = isCurrentBeat ? '#ffffff' : '#334155';
+        ctx.stroke();
+
+        ctx.fillStyle = isCurrentBeat ? '#090d16' : '#94a3b8';
+        ctx.font = 'bold 15px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(String(b + 1), bx, by + 5);
+      }
+      ctx.fillStyle = '#fde047';
+      ctx.font = 'bold 12px monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(`SUBDIVISÃO EXATA: [ ${SUB_NAMES[currentStep]} ]   →   ${describeStepAction(pat, currentStep)}`, 24, 156);
+
+      drawDrumPiece(ctx, 595, 58, 34, 'CRASH', '#fbbf24', kitGlow.crash, 'MD');
+      drawDrumPiece(ctx, 560, 118, 28, 'CHIMBAL', '#fde047', kitGlow.hh, 'MD');
+      drawDrumPiece(ctx, 650, 122, 32, 'CAIXA', '#f43f5e', kitGlow.snare, 'ME');
+      drawDrumPiece(ctx, 745, 110, 40, 'BUMBO (PÉ)', '#38bdf8', kitGlow.kick, 'PD');
+      drawDrumPiece(ctx, 845, 98, 33, 'TONS', '#c084fc', kitGlow.tom, 'MD/ME');
+
+      for (const k of Object.keys(kitGlow)) {
+        kitGlow[k] = Math.max(0, kitGlow[k] - 0.08);
+      }
+
+      const leftMargin = 100;
+      const rightPad = 20;
+      const gridW = W - leftMargin - rightPad;
+      const colW = gridW / 16;
+
+      const stepMs = ((60 / bpm) / 4) * 1000;
+      const elapsed = isPlaying ? Math.min(1, (performance.now() - lastStepTimeMs) / stepMs) : 0;
+      const smoothStep = currentStep + elapsed * 0.85;
+
+      const activeColX = leftMargin + currentStep * colW;
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.17)';
+      ctx.fillRect(activeColX, 175, colW, H - 175);
+
+      ctx.font = 'bold 13px monospace';
+      ctx.textAlign = 'center';
+      for (let s = 0; s < 16; s++) {
+        const cx = leftMargin + s * colW + colW / 2;
+        const isBeat = s % 4 === 0;
+        const isCur = s === currentStep;
+
+        if (isCur) {
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(leftMargin + s * colW + 2, 180, colW - 4, 22);
+          ctx.fillStyle = '#090d16';
+        } else {
+          ctx.fillStyle = isBeat ? '#f8fafc' : '#64748b';
+        }
+        ctx.fillText(SUB_NAMES[s], cx, 196);
+
+        ctx.strokeStyle = isBeat ? '#334155' : 'rgba(148, 163, 184, 0.12)';
+        ctx.lineWidth = isBeat ? 1.5 : 0.8;
+        ctx.beginPath();
+        ctx.moveTo(leftMargin + s * colW, 204);
+        ctx.lineTo(leftMargin + s * colW, H - 34);
+        ctx.stroke();
+      }
+
+      const staffTop = 238;
+      const lineGap = 24;
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 1.2;
+      for (let i = 0; i < 5; i++) {
+        const y = staffTop + i * lineGap;
+        ctx.beginPath();
+        ctx.moveTo(14, y);
+        ctx.lineTo(W - rightPad, y);
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillRect(22, staffTop + lineGap, 4, lineGap * 2);
+      ctx.fillRect(30, staffTop + lineGap, 4, lineGap * 2);
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = 'bold 20px serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('4', 48, staffTop + lineGap * 1.7);
+      ctx.fillText('4', 48, staffTop + lineGap * 3.7);
+
+      const yCrash = staffTop - 13;
+      const yHH    = staffTop - 1;
+      const yTom   = staffTop + lineGap * 1.1;
+      const ySnare = staffTop + lineGap * 1.75;
+      const yKick  = staffTop + lineGap * 3.45;
+
+      ctx.font = 'bold 11px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#fbbf24'; ctx.fillText('Crash', 60, yCrash + 4);
+      ctx.fillStyle = '#fde047'; ctx.fillText('Chimbal', 60, yHH + 4);
+      ctx.fillStyle = '#c084fc'; ctx.fillText('Tons', 60, yTom + 4);
+      ctx.fillStyle = '#f43f5e'; ctx.fillText('Caixa', 60, ySnare + 4);
+      ctx.fillStyle = '#38bdf8'; ctx.fillText('Bumbo', 60, yKick + 4);
+
+      for (let s = 0; s < 16; s++) {
+        const cx = leftMargin + s * colW + colW / 2;
+        const isCur = s === currentStep;
+        const hasUpper = pat.crash[s] || pat.hh[s] || pat.snare[s] || pat.tom[s];
+
+        if (hasUpper) {
+          const topY = pat.crash[s] ? yCrash : (pat.hh[s] ? yHH : (pat.tom[s] ? yTom : ySnare));
+          const botY = pat.snare[s] ? ySnare : (pat.tom[s] ? yTom : topY);
+          ctx.strokeStyle = isCur ? '#ffffff' : '#cbd5e1';
+          ctx.lineWidth = isCur ? 2.4 : 1.6;
+          ctx.beginPath();
+          ctx.moveTo(cx + 6, botY);
+          ctx.lineTo(cx + 6, topY - 20);
+          ctx.stroke();
+        }
+
+        if (pat.crash[s]) drawX(ctx, cx, yCrash, '#fbbf24', isCur, true);
+        if (pat.hh[s])    drawX(ctx, cx, yHH, '#fde047', isCur, false);
+        if (pat.tom[s])   drawNoteHead(ctx, cx, yTom, '#c084fc', isCur);
+        if (pat.snare[s]) drawNoteHead(ctx, cx, ySnare, '#f43f5e', isCur);
+        if (pat.kick[s]) {
+          drawNoteHead(ctx, cx, yKick, '#38bdf8', isCur);
+          ctx.strokeStyle = isCur ? '#ffffff' : '#38bdf8';
+          ctx.lineWidth = isCur ? 2.4 : 1.6;
+          ctx.beginPath();
+          ctx.moveTo(cx - 6, yKick);
+          ctx.lineTo(cx - 6, yKick + 20);
+          ctx.stroke();
+        }
+
+        const limbs = [];
+        if (pat.crash[s] || pat.hh[s]) limbs.push('MD');
+        if (pat.snare[s]) limbs.push('ME');
+        if (pat.tom[s]) limbs.push(s % 2 === 0 ? 'MD' : 'ME');
+        if (pat.kick[s]) limbs.push('PD');
+
+        if (limbs.length) {
+          ctx.font = isCur ? 'bold 11px monospace' : '11px monospace';
+          ctx.fillStyle = isCur ? '#38bdf8' : '#94a3b8';
+          ctx.textAlign = 'center';
+          ctx.fillText(limbs.join('+'), cx, H - 12);
+        }
+      }
+
+      const playheadX = leftMargin + smoothStep * colW + colW / 2;
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(playheadX, 204);
+      ctx.lineTo(playheadX, H - 30);
+      ctx.stroke();
+
+      requestAnimationFrame(renderVideoFrame);
+    }
+
+    function drawDrumPiece(ctx, x, y, radius, label, color, glow, limb) {
+      ctx.save();
+      const r = radius + glow * 6;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fillStyle = glow > 0.1 ? color : '#1e293b';
+      ctx.fill();
+      ctx.lineWidth = glow > 0.1 ? 3.5 : 2;
+      ctx.strokeStyle = color;
+      ctx.stroke();
+
+      ctx.fillStyle = glow > 0.1 ? '#090d16' : '#f8fafc';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, x, y - 2);
+      ctx.font = '10px monospace';
+      ctx.fillStyle = glow > 0.1 ? '#090d16' : '#94a3b8';
+      ctx.fillText(`[${limb}]`, x, y + 11);
+      ctx.restore();
+    }
+
+    function drawNoteHead(ctx, x, y, color, isCur) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(-0.25);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, isCur ? 8.5 : 7, isCur ? 6.2 : 5, 0, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+      if (isCur) {
+        ctx.lineWidth = 2.2;
+        ctx.strokeStyle = '#ffffff';
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function drawX(ctx, x, y, color, isCur, circled) {
+      ctx.save();
+      const r = isCur ? 7 : 5.5;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = isCur ? 2.8 : 2;
+      ctx.beginPath();
+      ctx.moveTo(x - r, y - r); ctx.lineTo(x + r, y + r);
+      ctx.moveTo(x + r, y - r); ctx.lineTo(x - r, y + r);
+      ctx.stroke();
+      if (circled) {
+        ctx.beginPath();
+        ctx.arc(x, y, r + 3, 0, Math.PI * 2);
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function renderMeasureCards() {
+      const container = document.getElementById('measureCardsContainer');
+      container.innerHTML = '';
+      MEASURES.forEach((m, idx) => {
+        const card = document.createElement('div');
+        card.id = `mcard-${idx}`;
+        card.className = 'p-2.5 rounded border cursor-pointer transition-colors';
+        card.onclick = () => {
+          currentMeasureIdx = idx;
+          currentStep = 0;
+          executeStep(0);
+        };
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-[var(--foreground)]">${m.title}</span>
+            <span class="font-mono text-[11px] px-1.5 py-0.5 rounded bg-[var(--background)] text-[var(--primary)]">${m.section.split('—')[0]}</span>
+          </div>
+          <p class="text-[var(--muted-foreground)] mt-1 line-clamp-2">${m.desc}</p>
+        `;
+        container.appendChild(card);
+      });
+      highlightMeasureCard();
+    }
+
+    function highlightMeasureCard() {
+      MEASURES.forEach((_, idx) => {
+        const el = document.getElementById(`mcard-${idx}`);
+        if (!el) return;
+        if (idx === currentMeasureIdx) {
+          el.className = 'p-2.5 rounded border-2 border-[var(--primary)] bg-[var(--background)] cursor-pointer';
+        } else {
+          el.className = 'p-2.5 rounded border border-[var(--border)] bg-[var(--background)] opacity-80 hover:opacity-100 cursor-pointer';
+        }
+      });
+    }
+
+    document.getElementById('playPauseBtn').onclick = (e) => {
+      ensureAudio();
+      if (isPlaying) {
+        isPlaying = false;
+        if (stepTimer) clearTimeout(stepTimer);
+        e.target.textContent = '▶ Reproduzir Vídeo';
+      } else {
+        isPlaying = true;
+        e.target.textContent = '⏸ Pausar Vídeo';
+        runLoop();
+      }
+    };
+
+    document.getElementById('stepForwardBtn').onclick = () => {
+      ensureAudio();
+      if (isPlaying) {
+        isPlaying = false;
+        if (stepTimer) clearTimeout(stepTimer);
+        document.getElementById('playPauseBtn').textContent = '▶ Reproduzir Vídeo';
+      }
+      advanceStep();
+      executeStep(currentStep);
+    };
+
+    document.getElementById('prevBarBtn').onclick = () => {
+      currentMeasureIdx = (currentMeasureIdx - 1 + MEASURES.length) % MEASURES.length;
+      currentStep = 0;
+      executeStep(0);
+    };
+
+    document.getElementById('nextBarBtn').onclick = () => {
+      currentMeasureIdx = (currentMeasureIdx + 1) % MEASURES.length;
+      currentStep = 0;
+      executeStep(0);
+    };
+
+    document.getElementById('modeToggleBtn').onclick = (e) => {
+      isSimple = !isSimple;
+      e.target.textContent = isSimple
+        ? 'Modo: ★ Versão Simplificada (Iniciante)'
+        : 'Modo: ⚡ Versão Original (Mike Bordin)';
+    };
+
+    document.getElementById('bpmRange').oninput = (e) => {
+      setBpm(parseInt(e.target.value, 10));
+    };
+
+    document.querySelectorAll('.spd-btn').forEach(btn => {
+      btn.onclick = () => {
+        setBpm(parseInt(btn.dataset.bpm, 10));
+        document.querySelectorAll('.spd-btn').forEach(b => {
+          b.className = 'spd-btn px-2 py-1 rounded border border-[var(--border)] bg-[var(--background)] cursor-pointer';
+        });
+        btn.className = 'spd-btn px-2 py-1 rounded bg-[var(--primary)] text-[var(--primary-foreground)] font-bold cursor-pointer';
+      };
+    });
+
+    document.getElementById('loopModeBtn').onclick = (e) => {
+      if (loopMode === 'section') {
+        loopMode = 'bar';
+        e.target.textContent = '🔁 Loop: 1 Compasso Fixo';
+      } else if (loopMode === 'bar') {
+        loopMode = 'all';
+        e.target.textContent = '🔁 Loop: Música Inteira';
+      } else {
+        loopMode = 'section';
+        e.target.textContent = '🔁 Loop: Seção Atual';
+      }
+    };
+
+    document.getElementById('autoAccelBtn').onclick = (e) => {
+      autoAccel = !autoAccel;
+      e.target.textContent = autoAccel
+        ? '🚀 Treino Progressivo (+2 BPM): ON'
+        : '🚀 Treino Progressivo (+2 BPM): OFF';
+      e.target.className = autoAccel
+        ? 'px-2.5 py-1.5 rounded border border-[var(--primary)] bg-[var(--background)] text-[var(--primary)] font-bold cursor-pointer'
+        : 'px-2.5 py-1.5 rounded border border-[var(--border)] bg-[var(--background)] text-[var(--muted-foreground)] cursor-pointer';
+    };
+
+    document.getElementById('videoStageCanvas').onclick = (e) => {
+      const canvas = e.target;
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+      const leftMargin = 100;
+      const gridW = canvas.width - leftMargin - 20;
+      if (x >= leftMargin && x <= leftMargin + gridW) {
+        currentStep = Math.min(15, Math.max(0, Math.floor(((x - leftMargin) / gridW) * 16)));
+        executeStep(currentStep);
+      }
+    };
+
+    function userHitInstrument(inst) {
+      if (inst === 'kick') synthKick();
+      if (inst === 'snare') synthSnare();
+      if (inst === 'hh') synthCymbal(false);
+      if (inst === 'crash') synthCymbal(true);
+      if (inst === 'tom') synthTom();
+
+      const pat = getCurrentPattern();
+      const fb = document.getElementById('hitFeedback');
+      if (pat[inst] && pat[inst][currentStep]) {
+        fb.textContent = `🎯 PERFEITO no tempo [${SUB_NAMES[currentStep]}]!`;
+        fb.className = 'font-mono font-bold text-[var(--success)]';
+      } else {
+        fb.textContent = `⚡ Tocou ${inst.toUpperCase()} em [${SUB_NAMES[currentStep]}]`;
+        fb.className = 'font-mono font-bold text-[var(--warning)]';
+      }
+    }
+
+    document.querySelectorAll('.pad-trigger').forEach(btn => {
+      btn.onclick = () => userHitInstrument(btn.dataset.pad);
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT') return;
+      const k = e.key.toLowerCase();
+      if (k === ' ') { e.preventDefault(); userHitInstrument('kick'); }
+      else if (k === 's') userHitInstrument('snare');
+      else if (k === 'h') userHitInstrument('hh');
+      else if (k === 'c') userHitInstrument('crash');
+      else if (k === 't') userHitInstrument('tom');
+    });
+
+    document.getElementById('recordVideoBtn').onclick = (e) => {
+      ensureAudio();
+      const btn = e.target;
+      if (!isRecording) {
+        const canvas = document.getElementById('videoStageCanvas');
+        const canvasStream = canvas.captureStream(30);
+        const combined = new MediaStream([
+          ...canvasStream.getVideoTracks(),
+          ...(mediaStreamDest ? mediaStreamDest.stream.getAudioTracks() : [])
+        ]);
+        recordedChunks = [];
+        mediaRecorder = new MediaRecorder(combined, { mimeType: 'video/webm' });
+        mediaRecorder.ondataavailable = (ev) => {
+          if (ev.data && ev.data.size > 0) recordedChunks.push(ev.data);
+        };
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(recordedChunks, { type: 'video/webm' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `epic-faith-no-more-drums-${bpm}bpm.webm`;
+          a.click();
+        };
+        mediaRecorder.start();
+        isRecording = true;
+        btn.textContent = '⏹ Parar e Baixar Vídeo (.webm)';
+        if (!isPlaying) document.getElementById('playPauseBtn').click();
+      } else {
+        mediaRecorder.stop();
+        isRecording = false;
+        btn.textContent = '🎥 Gravar Vídeo (.webm)';
+      }
+    };
+
+    renderMeasureCards();
+    requestAnimationFrame(renderVideoFrame);
+  </script>
+</body>
+</html>
